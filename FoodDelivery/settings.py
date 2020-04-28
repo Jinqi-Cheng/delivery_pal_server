@@ -77,22 +77,22 @@ WSGI_APPLICATION = 'FoodDelivery.wsgi.application'
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-        # 'ENGINE': 'django.db.backends.mysql',
-        # 'NAME': 'fooddelivery',
-        # 'USER': 'hsuan',
-        # 'PASSWORD': 'hsuan',
-        # 'HOST': 'localhost',
-        # 'PORT': '3306',
-    # }
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'FoodDelivery1',
-        'USER': 'dell',
-        'PASSWORD': 'FoodDelivery1@',
+        'NAME': 'fooddelivery',
+        'USER': 'hsuan',
+        'PASSWORD': 'hsuan',
         'HOST': 'localhost',
         'PORT': '3306',
     }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'FoodDelivery1',
+    #     'USER': 'dell',
+    #     'PASSWORD': 'FoodDelivery1@',
+    #     'HOST': 'localhost',
+    #     'PORT': '3306',
+    # }
 }
 
 
