@@ -18,9 +18,11 @@ from django.urls import path, include
 
 # from accounts import viwes
 from django.contrib.auth import views as auth_views
+# from .accounts import views
+from django.shortcuts import redirect
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
-    path('', include('accounts.urls')),
+    path('', lambda toac: redirect('accounts/login')),
 ]

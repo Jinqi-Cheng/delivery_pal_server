@@ -9,7 +9,7 @@ from .models import Resaurant
 
 @login_required
 def dashboard(request):
-    return render(request, 'account/dashboard.html',{'section': 'dashboard'})
+    return render(request, 'dashboard.html',{'section': 'dashboard'})
 
 @login_required
 def profile(request):
