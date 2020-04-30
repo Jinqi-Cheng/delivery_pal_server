@@ -18,9 +18,12 @@ class Restaurant(models.Model):
 class Drivers(models.Model):
 
     idDriver = models.AutoField(primary_key=True)
-    idRestaurant = models.OneToOneField(Restaurant, on_delete=models.SET_NULL,null=True, to_field='idRestaurant')
+    idRestaurant = models.ForeignKey(Restaurant, on_delete=models.SET_NULL,null=True, to_field='idRestaurant')
+    driverCode = models.CharField(max_length=12, unique=True, null=True)
+    
     class Meta:
         db_table = "Drivers"
+        verbose_name = 'Driver'
 
 class Orders(models.Model):
 
