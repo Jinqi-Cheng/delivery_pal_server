@@ -24,9 +24,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
     path('', lambda toac: redirect('accounts/login')),
-<<<<<<< HEAD
     path('restaurant/', include('restaurant.urls')),
 
-=======
->>>>>>> e953d0d065bc14cd93c3751fe910eb1842b47c26
 ]
