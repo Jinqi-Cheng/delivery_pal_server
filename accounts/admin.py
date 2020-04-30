@@ -4,12 +4,12 @@ from django.contrib import admin
 
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
-from .models import Resaurant
+from .models import Restaurant
 
 admin.site.unregister(User)
 
 class RestaurantProfileInline(admin.StackedInline):
-    model = Resaurant
+    model = Restaurant
 
 class RestaurantProfile(UserAdmin):
     inlines = [RestaurantProfileInline, ]

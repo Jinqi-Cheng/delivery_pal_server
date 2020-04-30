@@ -5,11 +5,13 @@ from .loginForm import LoginForm
 
 # Create your views here.
 
-from .models import Resaurant
+from .models import Restaurant
 
 @login_required
 def dashboard(request):
-    return render(request, 'account/dashboard.html',{'section': 'dashboard'})
+    return redirect('restautant/dashboard.html')
+    # return render(request, 'restautant/dashboard.html',{'section': 'dashboard'})
+    # return render(request, 'dashboard.html',{'section': 'dashboard'})
 
 @login_required
 def profile(request):
@@ -18,7 +20,7 @@ def profile(request):
         if user.is_superuser:
             return redirect('/admin/')
         else:
-            restaurant = Resaurant.objects.get(user_id = user.id)
+            restaurant = Restaurant.objects.get(user_id = user.id)
             return render(request, 'profile.html', {'restaurant': restaurant})
     else:
         return redirect('/accounts/login/',{'message':'Wrong password Please Try agagin'})

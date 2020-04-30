@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load bootstrap3 %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+    <div class="jumbotron" style='padding : 20px'>
+        <h2>{{ restaurant.name }}</h2>
+        <p>Welcome to your dashboard.</p>
+        Upload pdf files of orders.
+    </div>
+    <div class="row">
+        <div class="col-xs-3">
+            <h3>Add orders</h3>
+            <form action="/upload_profile/add/" enctype="multipart/form-data" method="post">
+                {% csrf_token %}
+                <label for="user_name">Order:</ label>
+                <input type="file" name="pdf_file" accept=".pdf"><br>
+                <input type="submit" value="Submit" />
+            </form>
+        </div>
+        <div class="col-xs-9">
+            <h3>The orders</h3>
+            {% comment %} <table id="order_tb" class="table table-hover" border>
+                <tr>
+                    <td>{{ obj.label }}</td>
+                    <td>{{ obj.name }}</td>
+                </tr>
+            </table> {% endcomment %}
+            
+            {% comment %} <Table bordered condensed hover responsive> {% endcomment %}
+            <table class="table table-bordered table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Price</th>
+                        <th>Receiver</th>
+                        <th>Meals</th>
+                        <th>Order Date</th>
+                        <th>Driver ID</th>
+                        <th>Address</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                        <tr>
+                            <td>{{order.idOrder}}</td>
+                            <td>{{order.Price}}</td>
+                            <td>{{order.ReceiverName}}</td>
+                            <td>{{order.Meals}}</td>
+                            <td>{{order.OrderDate}}</td>
+                            <td>{{order.DriverId.idDriver}}</td>
+                            <td>{{order.Address}}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

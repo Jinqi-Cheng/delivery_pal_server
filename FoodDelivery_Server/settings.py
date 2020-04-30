@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'accounts',
+    'restaurant',
     'bootstrap3',
     'django.contrib.admin',
 ]
@@ -56,7 +57,6 @@ ROOT_URLCONF = 'FoodDelivery_Server.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # 'DIRS': [os.path.join(BASE_DIR, 'templates'), os.path.join(BASE_DIR, 'account/templates')],
         'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -77,14 +77,6 @@ WSGI_APPLICATION = 'FoodDelivery_Server.wsgi.application'
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-        # 'ENGINE': 'django.db.backends.mysql',
-        # 'NAME': 'fooddelivery',
-        # 'USER': 'hsuan',
-        # 'PASSWORD': 'hsuan',
-        # 'HOST': 'localhost',
-        # 'PORT': '3306',
-    # }
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'FoodDelivery1',
@@ -92,7 +84,15 @@ DATABASES = {
         'PASSWORD': 'FoodDelivery1@',
         'HOST': 'localhost',
         'PORT': '3306',
-    }
+    },
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'fooddelivery',
+    #     'USER': 'hsuan',
+    #     'PASSWORD': 'hsuan',
+    #     'HOST': 'localhost',
+    #     'PORT': '3306',
+    # }
 }
 
 
