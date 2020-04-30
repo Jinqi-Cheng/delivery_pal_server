@@ -9,9 +9,13 @@ from .models import Restaurant
 
 @login_required
 def dashboard(request):
+<<<<<<< HEAD
     return redirect('restautant/dashboard.html')
     # return render(request, 'restautant/dashboard.html',{'section': 'dashboard'})
     # return render(request, 'dashboard.html',{'section': 'dashboard'})
+=======
+    return render(request, 'dashboard.html',{'section': 'dashboard'})
+>>>>>>> e953d0d065bc14cd93c3751fe910eb1842b47c26
 
 @login_required
 def profile(request):
