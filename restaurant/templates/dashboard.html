@@ -8,25 +8,21 @@
         Upload pdf files of orders.
     </div>
     <div class="row">
-        <div class="col-xs-3">
+        <div class="col-xs-5">
             <h3>Add orders</h3>
             <form action="/upload_profile/add/" enctype="multipart/form-data" method="post">
                 {% csrf_token %}
                 <label for="user_name">Order:</ label>
                 <input type="file" name="pdf_file" accept=".pdf"><br>
+                <input type="radio" checked="checked">Today({{today}})</input>
+                &nbsp;&nbsp;
+                <input type="radio">Tomorrow({{Tmr}})</input>
+                
                 <input type="submit" value="Submit" />
             </form>
         </div>
-        <div class="col-xs-9">
-            <h3>The orders</h3>
-            {% comment %} <table id="order_tb" class="table table-hover" border>
-                <tr>
-                    <td>{{ obj.label }}</td>
-                    <td>{{ obj.name }}</td>
-                </tr>
-            </table> {% endcomment %}
-            
-            {% comment %} <Table bordered condensed hover responsive> {% endcomment %}
+        <div class="col-xs-12">
+            <h3>Orders Checklist</h3>
             <table class="table table-bordered table-hover table-striped">
                 <thead>
                     <tr>
@@ -53,6 +49,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+            <p><button>Clear</button>  <button>Confirm</button></p>
         </div>
     </div>
 {% endblock %}

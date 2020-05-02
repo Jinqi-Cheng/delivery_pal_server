@@ -1,23 +1,22 @@
 from django.shortcuts import render
-# from django.shortcuts import redirect
+from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
+from .models import Orders, Drivers
+from accounts.models import Restaurant
+
+import datetime
+
 # Create your views here.
-
-from accounts.models import Restaurant, Orders, Drivers
-
 @login_required
 def dashboard(request):
+    if request.user.is_superuser:
+        return redirect('/admin/')
     restaurant = Restaurant.objects.get(user_id = request.user.id)
-    # driver = Drivers.objects.create(idRestaurant=None, idDriver=10)
-    # orders = Orders.objects.create(idOrder=1, idRestaurant=restaurant,Price=34.5, ReceiverName='Hsuan', Meals=None, OrderDate=None, DriverId=driver, Address='6783')
-
-    # driver = Drivers.objects.get(idDriver=10)
-    # orders = Orders.objects.create(idOrder=2, idRestaurant=restaurant,Price=50.25, ReceiverName='Hsuan', Meals=None, OrderDate=None, DriverId=driver, Address='6625')
-
-    # driver = Drivers.objects.get(idDriver=10)
-    # orders = Orders.objects.filter(DriverId=driver)
     drivers = Drivers.objects.filter(idRestaurant=restaurant)
     orders = []
     for driver in drivers:
         orders += Orders.objects.filter(DriverId=driver)
-    return render(request, 'dashboard.html',{'restaurant': restaurant, 'orders':orders})
+
+    today = datetime.date.today()
+    tmr =today+ datetime.timedelta(days=1)
+    return render(request, 'dashboard.html',{'restaurant': restaurant, 'orders':orders,'today':today,'Tmr':tmr})
