@@ -9,3 +9,8 @@ class OrderAdmin(admin.ModelAdmin):
     fieldsets = [('Order detail' ,{ 'fields':['idRestaurant', 'Price','Meals','OrderDate','DriverId']}), ('Receiver',{'fields':['ReceiverName', 'Address']})]
 
 admin.site.register(Orders, OrderAdmin)
+
+class DriverAdmin(admin.ModelAdmin):
+    list_display = ['idDriver','idRestaurant', 'driverCode']
+
+admin.site.register(Drivers, DriverAdmin)

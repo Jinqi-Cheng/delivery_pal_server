@@ -14,10 +14,10 @@ def dashboard(request):
     # driver = Drivers.objects.get(idDriver=10)
     # orders = Orders.objects.create(idOrder=2, idRestaurant=restaurant,Price=50.25, ReceiverName='Hsuan', Meals=None, OrderDate=None, DriverId=driver, Address='6625')
 
-    driver = Drivers.objects.get(idDriver=10)
-    orders = Orders.objects.filter(DriverId=driver)
-    
-    print(orders)
-
-
+    # driver = Drivers.objects.get(idDriver=10)
+    # orders = Orders.objects.filter(DriverId=driver)
+    drivers = Drivers.objects.filter(idRestaurant=restaurant)
+    orders = []
+    for driver in drivers:
+        orders += Orders.objects.filter(DriverId=driver)
     return render(request, 'dashboard.html',{'restaurant': restaurant, 'orders':orders})
