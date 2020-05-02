@@ -3,9 +3,11 @@ Create Date ,
 @author: 
 """
 from collections import defaultdict
+from clustering.equal_groups import EqualGroupsKMeans
 
 from accounts.models import Orders, Restaurant
 from .pdf import *
+from .GoogleMap import geocode
 class Order:
 
     @classmethod
@@ -34,7 +36,6 @@ class Order:
 
     @classmethod
     def parser_meals(cls, restaurant_id, date, is_lunch):
-        # print("parser")
         obj = Orders.objects.filter(idRestaurant_id=Restaurant.objects.get(idRestaurant=restaurant_id),OrderDate=date).values("Meals","idDisp")
         print(obj[0])
         dic = defaultdict(list)
@@ -45,9 +46,16 @@ class Order:
                     dic[meal].append(idOrder)
         for key,value in dic.items():
             print(key,value)
-        # Orders.objects.filter(idRestaurant=Restaurant.objects.get(idRestaurant=restaurant_id)
-        #                       ,OrderDate=date))
+        return dic
 
     @classmethod
-    def x(cls):
-        pass
+    def assign_order_driver(cls,restaurant_id,date,driver_list):
+        address = Orders.objects.filter(idRestaurant_id=Restaurant.objects.get(idRestaurant=restaurant_id),OrderDate=date).values("Address")
+        address_list = [addr['Address'] for addr in address]
+        position = geocode(address_list)
+        cluster_model =EqualGroupsKMeans(n_clusters=len(driver_list),random_state=0)
+        cluster_model.fit(position)
+        for index,addr in enumerate(address_list):
+            Orders.objects.filter(idRestaurant_id=Restaurant.objects.get(idRestaurant=restaurant_id),
+                                  OrderDate=date,
+                                  Address=addr).update(DriverId_id = driver_list[cluster_model.labels_[index]])
