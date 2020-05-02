@@ -40,7 +40,7 @@ def fetch_dishes(txt):
     dishes = re.findall(re.compile(r"phone:[-\d]*(.*)Sub", re.S), txt)
     dishes = dishes[0]
     dishes = re.findall(re.compile(r"([^X]*[^\d])\d+\.\d{2} X (\d{1})\d*\.\d{2}", re.S), dishes)
-    print(dishes)
+    # print(dishes)
     return dishes
 def fetch_id(txt):
     order_id = re.findall(re.compile(r"Order sequence:(\d+)Payment", re.S), txt)[0]
