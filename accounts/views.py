@@ -9,7 +9,7 @@ from .models import Restaurant
 
 @login_required
 def dashboard(request):
-    return redirect('restautant/dashboard.html')
+    return redirect('restaurant/dashboard.html')
     # return render(request, 'restautant/dashboard.html',{'section': 'dashboard'})
     # return render(request, 'dashboard.html',{'section': 'dashboard'})
 
