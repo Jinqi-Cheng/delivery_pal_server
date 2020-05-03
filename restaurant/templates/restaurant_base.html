@@ -1,0 +1,55 @@
+{% load static %}
+{% load bootstrap3 %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    <link href="{% static "stylesheets/projectstyle.css" %}" rel="stylesheet">
+    <link href="https://netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+</head>
+<body>
+
+<div>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="{% url 'dashboard' %}">Delivery Pal : {{ restaurant.name }}</a>
+            </div>
+        </div>
+    </nav>
+</div>
+
+<div class="wrapper">
+    <!-- Sidebar -->
+    <nav id="sidebar">
+        <ul class="nav nav-pills nav-stacked">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'dashboard' %}">Upload PDF</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'driverManager' %}">Driver Manager</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Order History</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Printable Route</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Order for Kitchen</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Contact Us</a>
+            </li>
+        </ul>
+    </nav>
+    <!-- Page Content -->
+    <div>
+        {% block content %}
+        {% endblock %}
+    </div>
+</div>

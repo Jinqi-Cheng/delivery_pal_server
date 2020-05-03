@@ -11,6 +11,6 @@ class OrderAdmin(admin.ModelAdmin):
 admin.site.register(Orders, OrderAdmin)
 
 class DriverAdmin(admin.ModelAdmin):
-    list_display = ['idDriver','idRestaurant', 'driverCode']
+    list_display = ['idDriver','idRestaurant', 'driverCode','driverName']
 
 admin.site.register(Drivers, DriverAdmin)
