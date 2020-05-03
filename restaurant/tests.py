@@ -5,5 +5,5 @@ class OrderTestCases(TestCase):
     # def setUp(self):
     #     pass
     def test_pdf2DB(self):
-        Order.pdf2DB("./miscellaneous/4.30 92129.pdf",1,"05/01/2020")
+        Order.pdf2DB("./miscellaneous/5.1 92130.pdf",1,"05-01-2020")
         # s

@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from accounts.models import Orders, Drivers
+from .models import Orders, Drivers
 
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['idOrder','ReceiverName', 'Price' ]

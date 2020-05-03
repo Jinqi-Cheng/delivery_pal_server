@@ -5,7 +5,8 @@ Create Date ,
 from collections import defaultdict
 from clustering.equal_groups import EqualGroupsKMeans
 
-from accounts.models import Orders, Restaurant
+from .models import Orders
+from accounts.models import Restaurant
 from .pdf import *
 from .GoogleMap import geocode
 class Order:
@@ -25,7 +26,7 @@ class Order:
                 meals = fetch_dishes(txt)
                 meals_dic = {key:value for key,value in meals}
                 Orders.objects.create(idRestaurant=Restaurant.objects.get(idRestaurant=restaurant_id),
-                                      idDisp=fetch_id(txt),
+                                      idDisplay=fetch_id(txt),
                                       Price=fetch_price(txt),ReceiverName=fetch_recipient_name(txt),
                                       Meals=meals_dic,OrderDate=date,DriverId=None,Address=fetch_address(txt))
     @classmethod
@@ -36,11 +37,11 @@ class Order:
 
     @classmethod
     def parser_meals(cls, restaurant_id, date, is_lunch):
-        obj = Orders.objects.filter(idRestaurant_id=Restaurant.objects.get(idRestaurant=restaurant_id),OrderDate=date).values("Meals","idDisp")
+        obj = Orders.objects.filter(idRestaurant_id=Restaurant.objects.get(idRestaurant=restaurant_id),OrderDate=date).values("Meals","idDisplay")
         print(obj[0])
         dic = defaultdict(list)
         for meals in obj:
-            idOrder = meals['idDisp']
+            idOrder = meals['idDisplay']
             for meal,meal_num in meals['Meals'].items():
                 for _ in range(int(meal_num)):
                     dic[meal].append(idOrder)
