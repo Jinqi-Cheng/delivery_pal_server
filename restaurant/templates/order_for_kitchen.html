@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load bootstrap3 %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+    <div class="jumbotron" style='padding : 20px'>
+        <h2>{{ restaurant.name }}</h2>
+        <p>Welcome to your dashboard.</p>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <h3>Orders Checklist</h3>
+            <table class="table table-bordered table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th>菜品名称</th>
+                        <th>订单编号</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for key,value in orders %}
+                        <tr>
+                            <td>{{key}}</td>
+                            <td>{{value}}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
