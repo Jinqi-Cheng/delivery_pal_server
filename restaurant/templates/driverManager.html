@@ -1,0 +1,45 @@
+{% extends "restaurant_base.html" %}
+{% load bootstrap3 %}
+{% block title %}Driver Manager{% endblock %}
+{% block content %}
+<div calss="col-sm-4">
+    <h2>Driver Manager</h2>
+    <h3 style="margin: 2px">Add New Driver</h3>
+    <hr style="margin: 2px"/>
+    <br>
+    <form action="." method="post" class="form">
+        {% csrf_token %}
+        {% bootstrap_form driver_form %}
+        {% buttons %}
+            <button type="submit" class="btn btn-primary">
+                Add
+            </button>
+        {% endbuttons %}
+    </form>
+    <br>
+    <h3 style="margin: 2px">Existing Drivers</h3>
+    <hr style="margin: 2px"/>
+    <br>
+    <table class="table table-bordered table-hover table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Driver Code</th>
+                <th>Delete</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for driver in drivers %}
+                <tr>
+                    <td>{{driver.idDriver}}</td>
+                    <td>{{driver.driverName}}</td>
+                    <td>{{driver.driverCode}}</td>
+                    <td><a href="{% url 'drivers-delete' driver.idDriver %}" class="btn btn-info" role="button">Delete</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+{% endblock %}

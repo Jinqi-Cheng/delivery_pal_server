@@ -9,6 +9,7 @@ class Restaurant(models.Model):
 
     idRestaurant = models.AutoField(primary_key = True)
     name = models.CharField(max_length=64)
+    driverNumber = models.PositiveIntegerField(default=0)
 
     class Meta:
         db_table = 'Restaurant'

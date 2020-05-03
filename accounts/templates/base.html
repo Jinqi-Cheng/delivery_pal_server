@@ -17,13 +17,11 @@
     <div class="container-fluid">
         <div class="navbar-header">
             {% comment %} <a class="navbar-brand">Food Delivery</a> {% endcomment %}
-            <a class="navbar-brand" href="{% url 'dashboard' %}">Food Delivery</a>
+            <a class="navbar-brand" href="{% url 'dashboard' %}">Delivery Pal</a>
         </div>
         <ul class="nav navbar-nav navbar-right">
 
             {% if request.user.is_authenticated %}
-                {% comment %} <li><a href="{% url 'profile' %}"><span class="glyphicon glyphicon-user"></span> Hello {{ request.user.username }}</a>
-                </li> {% endcomment %}
                 <li><a href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
             {% else %}
                 <li><a href="{% url 'login' %}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
