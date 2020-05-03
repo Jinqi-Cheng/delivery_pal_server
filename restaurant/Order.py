@@ -37,7 +37,7 @@ class Order:
 
     @classmethod
     def parser_meals(cls, restaurant_id, date, is_lunch):
-        obj = Orders.objects.filter(idRestaurant_id=Restaurant.objects.get(idRestaurant=restaurant_id),OrderDate=date).values("Meals","idDisplay")
+        obj = Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=date).values("Meals","idDisplay")
         print(obj[0])
         dic = defaultdict(list)
         for meals in obj:
@@ -51,12 +51,16 @@ class Order:
 
     @classmethod
     def assign_order_driver(cls,restaurant_id,date,driver_list):
-        address = Orders.objects.filter(idRestaurant_id=Restaurant.objects.get(idRestaurant=restaurant_id),OrderDate=date).values("Address")
+        address = Orders.objects.filter(idRestaurant_id=1,OrderDate=date).values("Address")
         address_list = [addr['Address'] for addr in address]
         position = geocode(address_list)
         cluster_model =EqualGroupsKMeans(n_clusters=len(driver_list),random_state=0)
         cluster_model.fit(position)
         for index,addr in enumerate(address_list):
-            Orders.objects.filter(idRestaurant_id=Restaurant.objects.get(idRestaurant=restaurant_id),
+            Orders.objects.filter(idRestaurant_id=restaurant_id,
                                   OrderDate=date,
                                   Address=addr).update(DriverId_id = driver_list[cluster_model.labels_[index]])
+
+    @classmethod
+    def generate_sequence(cls,restaurant_id,date,driver_id):
+        pass
