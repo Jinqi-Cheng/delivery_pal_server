@@ -63,7 +63,8 @@ def insertion_permutation_sort(addr_list,id_list):
 class Order:
 
     @classmethod
-    def pdf2DB(cls,file_path,restaurant_id,date):
+    def pdf2DB(cls,file_path,restaurant_id,date,is_lunch):
+        date += " 12:00" if is_lunch else " 18:00"
         with open(file_path, "rb") as pdf_file:
             text = read_pdf(pdf_file)
             text = "".join(text)
@@ -75,16 +76,32 @@ class Order:
                 Orders.objects.create(idRestaurant_id=restaurant_id,
                                       idDisplay=fetch_id(txt),
                                       Price=fetch_price(txt),ReceiverName=fetch_recipient_name(txt),
-                                      Meals=meals_dic,OrderDate=date,DriverId=None,Address=fetch_address(txt))
+                                      Meals=meals_dic,OrderDate=date,DriverId=None,Address=fetch_address(txt),
+                                      Phone=fetch_phone_number(txt),
+                                      Note=fetch_note(txt))
     @classmethod
-    def generate_deliver_list(cls,restaurant_id, driver_id, date):
-        obj = Orders.objects.filter(idRestaurant=Restaurant.objects.get(idRestaurant=restaurant_id)
-                                    ,DriverId=driver_id,OrderDate=date).order_by("rank")
-        print(obj,type(obj))
-
+    def generate_deliver_list(cls,driver_id, date):
+        order_obj = Orders.objects.filter(DriverId_id=driver_id,
+                                           OrderDate=date+" 18:00").values("ReceiverName","idDisplay","Address","Phone","Note","Meals").order_by("Sequence")
+        if not len(order_obj):
+            order_obj = Orders.objects.filter(DriverId_id=driver_id,
+                                               OrderDate=date + " 12:00").values("ReceiverName","idDisplay","Address","Phone","Note","Meals").order_by("Sequence")
+        lst = [{'name':order["ReceiverName"],
+                'orderId':str(order['idDisplay']),
+                'address':order['Address'],
+                'phone':order['Phone'],
+                'note':order['Note'],
+                'dishes':[meal+" X "+str(num) for meal,num in order['Meals'].items()]} for order in order_obj]
+        # obj = Orders.objects.filter(idRestaurant=Restaurant.objects.get(idRestaurant=restaurant_id)
+        #                             ,DriverId=driver_id,OrderDate=date).order_by("Sequence")
+        # print(obj,type(obj))
+        return lst
     @classmethod
     def parser_meals(cls, restaurant_id, date, is_lunch):
+        date += " 12:00" if is_lunch else " 18:00"
         obj = Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=date).values("Meals","idDisplay")
+        if not len(obj):
+            obj = Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=date).values("Meals","idDisplay")
         dic = defaultdict(list)
         for meals in obj:
             idOrder = meals['idDisplay']
@@ -94,7 +111,8 @@ class Order:
         return dic
 
     @classmethod
-    def assign_order_driver(cls,restaurant_id,date,driver_list):
+    def assign_order_driver(cls,restaurant_id,date,driver_list,is_lunch):
+        date += " 12:00" if is_lunch else " 18:00"
         address = Orders.objects.filter(idRestaurant_id=1,OrderDate=date).values("Address")
         address_list = [addr['Address'] for addr in address]
         position = geocode(address_list)
@@ -106,7 +124,8 @@ class Order:
                                   Address=addr).update(DriverId_id = driver_list[cluster_model.labels_[index]])
 
     @classmethod
-    def generate_sequence(cls,restaurant_id,date):
+    def generate_sequence(cls,restaurant_id,date,is_lunch):
+        date += " 12:00" if is_lunch else " 18:00"
         driver_list_query = Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=date).values("DriverId_id").distinct()
         driver_list = [value['DriverId_id'] for value in driver_list_query]
         for driver in driver_list:

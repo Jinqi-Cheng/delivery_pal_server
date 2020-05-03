@@ -23,33 +23,38 @@
     </nav>
 </div>
 
-<div class="wrapper">
+{#<div class="wrapper">#}
+    <div class="container-fluid">
+    <div class="row">
+
     <!-- Sidebar -->
-    <nav id="sidebar">
-        <ul class="nav nav-pills nav-stacked">
+    <nav id="sidebar" class="col-md-2">
+        <ul class="nav nav-pills nav-stacked" style="text-align: center">
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'dashboard' %}">Upload PDF</a>
+                <a class="nav-link" href="{% url 'dashboard' %}">上传文件</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'driverManager' %}">Driver Manager</a>
+                <a class="nav-link" href="{% url 'driverManager' %}">骑手管理</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Order History</a>
+                <a class="nav-link" href="#">历史订单</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Printable Route</a>
+                <a class="nav-link" href="#">打印路线</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Order for Kitchen</a>
+                <a class="nav-link" href="{% url 'order_for_kitchen' %}">订单分拣</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Contact Us</a>
+                <a class="nav-link" href="#">联系我们</a>
             </li>
         </ul>
     </nav>
     <!-- Page Content -->
-    <div>
+    <div class="col-md-8">
         {% block content %}
         {% endblock %}
     </div>
+    </div>
+{#    </div>#}
 </div>

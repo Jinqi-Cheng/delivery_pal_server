@@ -3,8 +3,12 @@ from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from django.db.models import F
 
+from django.http import JsonResponse
 from .models import Orders, Drivers
 from accounts.models import Restaurant
+from .Order import Order
+
+import datetime
 from .forms import DriverForm
 
 # Create your views here.
@@ -21,6 +25,19 @@ def dashboard(request):
     return render(request, 'dashboard.html',{'restaurant': restaurant, 'orders':orders})
 
 @login_required
+def order_for_kitchen(request):
+    if request.user.is_superuser:
+        return redirect('/admin/')
+    restaurant = Restaurant.objects.get(user_id=request.user.id)
+    print(restaurant)
+    dic = Order.parser_meals(restaurant.idRestaurant,"2020-05-01",True)
+    return render(request,'order_for_kitchen.html',{'restaurant': restaurant, 'orders':dic.items()})
+
+def get_order_sequence(request):
+    driver_id = request.GET.get('driver_id')
+    date = request.GET.get('date')
+    lst = Order.generate_deliver_list(driver_id,date)
+    return JsonResponse(lst,safe=False)
 def driverManager(request):
     if request.method == 'POST':
         driver_form = DriverForm(request.POST)
@@ -41,14 +58,14 @@ def driverManager(request):
         driver_form = DriverForm()
     restaurant = Restaurant.objects.get(user_id = request.user.id)
     drivers = Drivers.objects.filter(idRestaurant=restaurant)
-    
+
     driver_form = DriverForm(initial={'idRestaurant': restaurant,'driverCode':genDriverCode(restaurant)})
     # driver_form = DriverForm(initial={'idRestaurant': restaurant,'driverCode':genDriverCode(request.user.id, drivers)})
     return render(request, 'driverManager.html',{'restaurant': restaurant, 'drivers':drivers, 'driver_form':driver_form})
 
 def genDriverCode(restaurant):
     code = str(restaurant.idRestaurant).zfill(6)
-    next_id = restaurant.driverNumber+1 
+    next_id = restaurant.driverNumber+1
     code += str(next_id).zfill(6)
     return code
 
