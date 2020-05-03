@@ -1,7 +1,7 @@
 
 from django import forms
 
-from .models import Orders
+from accounts.models import Orders
 
 class OrdersForm(forms.ModelForm):
     class Meta:
