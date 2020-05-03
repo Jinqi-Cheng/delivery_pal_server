@@ -25,7 +25,7 @@ SECRET_KEY = '0f=29hbbxg%su3lj)pweyg@^fa04b+0_!mg*i@9b2gc8nqgqq-'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['34.83.99.15', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['34.83.99.15', 'localhost', '127.0.0.1','*']
 
 
 # Application definition
@@ -93,6 +93,14 @@ DATABASES = {
     #     'HOST': 'localhost',
     #     'PORT': '3306',
     # }
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'FoodDelivery',
+        'USER': 'kevin',
+        'PASSWORD': 'Kevin9694!',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    },
 }
 
 
@@ -135,6 +143,5 @@ USE_TZ = True
 STATIC_URL = '/static/'
 # STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-
 # # # Custom
-# LOGIN_REDIRECT_URL = '/account/profile/'
+LOGIN_REDIRECT_URL = '/restaurant/dashboard/'

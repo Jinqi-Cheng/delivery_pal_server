@@ -27,7 +27,8 @@ class Orders(models.Model):
     DriverId = models.ForeignKey(Drivers, on_delete=models.SET_NULL, null=True, to_field='idDriver')
     Address = models.CharField(max_length=1024)
     Sequence = models.PositiveIntegerField(default=0)
-
+    Phone = models.CharField(max_length=20,blank=True)
+    Note = models.CharField(max_length=1024,blank=True)
     class Meta:
         db_table = "Orders"
         verbose_name = 'Order'

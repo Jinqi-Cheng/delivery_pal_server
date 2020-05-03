@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 from .models import Orders, Drivers
 from accounts.models import Restaurant
 from .Order import Order
@@ -30,3 +31,9 @@ def order_for_kitchen(request):
     print(restaurant)
     dic = Order.parser_meals(restaurant.idRestaurant,"2020-05-01",True)
     return render(request,'order_for_kitchen.html',{'orders':dic.items()})
+
+def get_order_sequence(request):
+    driver_id = request.GET.get('driver_id')
+    date = request.GET.get('date')
+    lst = Order.generate_deliver_list(driver_id,date)
+    return JsonResponse(lst,safe=False)
