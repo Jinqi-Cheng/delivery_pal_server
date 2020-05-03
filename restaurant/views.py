@@ -31,7 +31,7 @@ def order_for_kitchen(request):
     restaurant = Restaurant.objects.get(user_id=request.user.id)
     print(restaurant)
     dic = Order.parser_meals(restaurant.idRestaurant,"2020-05-01",True)
-    return render(request,'order_for_kitchen.html',{'orders':dic.items()})
+    return render(request,'order_for_kitchen.html',{'restaurant': restaurant, 'orders':dic.items()})
 
 def get_order_sequence(request):
     driver_id = request.GET.get('driver_id')

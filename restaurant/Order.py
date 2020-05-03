@@ -100,6 +100,8 @@ class Order:
     def parser_meals(cls, restaurant_id, date, is_lunch):
         date += " 12:00" if is_lunch else " 18:00"
         obj = Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=date).values("Meals","idDisplay")
+        if not len(obj):
+            obj = Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=date).values("Meals","idDisplay")
         dic = defaultdict(list)
         for meals in obj:
             idOrder = meals['idDisplay']
