@@ -26,7 +26,7 @@ def dashboard(request):
             pdf_file = uploadSel_form.cleaned_data['file']
             fs = FileSystemStorage()
             filename = fs.save(pdf_file.name, pdf_file)
-            uploaded_file_loc = "{0}\\{1}".format(fs.location, filename)
+            uploaded_file_loc = "{0}/{1}".format(fs.location, filename)
             # print('URL : ', uploaded_file_loc)
 
             # today = date.today()

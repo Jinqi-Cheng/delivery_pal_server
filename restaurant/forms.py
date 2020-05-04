@@ -13,8 +13,6 @@ class OrdersForm(forms.ModelForm):
 class DriverForm(forms.ModelForm):
     def __init__(self, *args, **kwargs): 
         super(DriverForm, self).__init__(*args, **kwargs)                       
-        # self.fields['driverCode'].widget.attrs['disabled'] = 'disabled'
-        # self.fields['idRestaurant'].widget.attrs['disabled'] = 'disabled'
         self.fields['driverCode'].widget=forms.HiddenInput()
         self.fields['idRestaurant'].widget=forms.HiddenInput()
 
@@ -22,8 +20,13 @@ class DriverForm(forms.ModelForm):
         model = Drivers
         fields = ['driverName','idRestaurant','driverCode']
 
+
+class MyMultipleModelChoiceField(forms.ModelMultipleChoiceField):
+    def label_from_instance(self, obj):
+        return "%s | %s" % (obj.driverName, obj.driverCode)
+
 class uploadForm(forms.Form): 
-    drivers = forms.ModelMultipleChoiceField(queryset=Drivers.objects.none(), widget=forms.CheckboxSelectMultiple())     
+    drivers = MyMultipleModelChoiceField(queryset=Drivers.objects.none(), widget=forms.CheckboxSelectMultiple())     
     file = forms.FileField(validators=[ FileExtensionValidator(allowed_extensions=['pdf'])]    \
         ,widget=forms.FileInput(attrs={'accept':'.pdf'}))
     Period = forms.ChoiceField(required=True, widget=forms.RadioSelect(attrs={'class': 'Radio'}), choices=(('opt1','Lunch'),('opt2','Dinner'),))

@@ -21,6 +21,7 @@
         </div>
         <ul class="nav navbar-nav navbar-right">
 
+            <li><a href=""><span class="glyphicon glyphicon-user"></span> Hello {{ request.user.name }}</a>
             {% if request.user.is_authenticated %}
                 <li><a href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
             {% else %}
