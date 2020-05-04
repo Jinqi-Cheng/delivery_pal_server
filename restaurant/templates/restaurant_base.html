@@ -19,8 +19,16 @@
             <div class="navbar-header">
                 <a class="navbar-brand" href="{% url 'dashboard' %}">Delivery Pal : {{ restaurant.name }}</a>
             </div>
+            <ul class="nav navbar-nav navbar-right">
+                {% if request.user.is_authenticated %}
+                    <li><a href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'login' %}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+                {% endif %}
+            </ul>
         </div>
     </nav>
+
 </div>
 
 {#<div class="wrapper">#}
@@ -37,7 +45,7 @@
                 <a class="nav-link" href="{% url 'driverManager' %}">骑手管理</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">历史订单</a>
+                <a class="nav-link" href="{% url 'order_history' %}">历史订单</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'printable_routes' %}">打印路线</a>

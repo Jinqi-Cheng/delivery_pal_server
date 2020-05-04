@@ -93,14 +93,14 @@ DATABASES = {
     #     'HOST': 'localhost',
     #     'PORT': '3306',
     # }
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'FoodDelivery',
-        'USER': 'kevin',
-        'PASSWORD': 'Kevin9694!',
-        'HOST': 'localhost',
-        'PORT': '3306',
-    },
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'FoodDelivery',
+    #     'USER': 'kevin',
+    #     'PASSWORD': 'Kevin9694!',
+    #     'HOST': 'localhost',
+    #     'PORT': '3306',
+    # },
 }
 
 
@@ -145,3 +145,4 @@ STATIC_URL = '/static/'
 
 # # # Custom
 LOGIN_REDIRECT_URL = '/restaurant/dashboard/'
+MEDIA_ROOT = os.path.join(BASE_DIR,'tempBin/')

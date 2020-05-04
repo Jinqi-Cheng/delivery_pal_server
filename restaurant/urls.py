@@ -9,6 +9,8 @@ urlpatterns = [
     path(r'get_order_sequence/',views.get_order_sequence),
     path('driverManager/', views.driverManager, name='driverManager'),
     path('driverManager/<int:id>/delete/', views.driverDelete, name='drivers-delete'),
+    path('dashboard/upload_done/', views.uploadDone, name='uploadDone'),
+    path('order_history/', views.orderHistory, name='order_history'),
     path('contact_us/',views.contact_us,name='contact_us'),
     path('printable_routes',views.printable_routes,name='printable_routes')
 ]
