@@ -2,14 +2,16 @@ from django.shortcuts import render
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
 from django.db.models import F
+from django.core.files.storage import FileSystemStorage
 
 from django.http import JsonResponse
 from .models import Orders, Drivers
 from accounts.models import Restaurant
 from .Order import Order
+from .forms import DriverForm, uploadForm
 
-import datetime
-from .forms import DriverForm
+from datetime import date
+import threading
 
 # Create your views here.
 
@@ -17,12 +19,47 @@ from .forms import DriverForm
 def dashboard(request):
     if request.user.is_superuser:
         return redirect('/admin/')
+    if request.method == 'POST':
+        uploadSel_form = uploadForm(request.user.id, request.POST, request.FILES)
+        if uploadSel_form.is_valid():
+            # print(uploadSel_form.cleaned_data)
+            pdf_file = uploadSel_form.cleaned_data['file']
+            fs = FileSystemStorage()
+            filename = fs.save(pdf_file.name, pdf_file)
+            uploaded_file_loc = "{0}\\{1}".format(fs.location, filename)
+            # print('URL : ', uploaded_file_loc)
+
+            # today = date.today()
+            is_lunch = True if uploadSel_form.cleaned_data['Period']=='opt1' else False
+            drivers = uploadSel_form.cleaned_data['drivers']
+            driver_list = [ele.idDriver for ele in drivers]
+            restaurant = Restaurant.objects.get(user_id = request.user.id)
+            # print(driver_list)
+
+            today = date.today()
+            precess_data = threading.Thread(target=processOrder, args=[uploaded_file_loc,restaurant,driver_list,is_lunch])
+            precess_data.start()
+            return redirect('uploadDone')
+        else:
+            print('Fail')
+    else:
+        uploadSel_form = uploadForm(request.user.id)
     restaurant = Restaurant.objects.get(user_id = request.user.id)
-    drivers = Drivers.objects.filter(idRestaurant=restaurant)
-    orders = []
-    for driver in drivers:
-        orders += Orders.objects.filter(DriverId=driver)
-    return render(request, 'dashboard.html',{'restaurant': restaurant, 'orders':orders})
+    return render(request, 'home_upload.html',{'restaurant':restaurant,'uploadSel_form':uploadSel_form})
+
+def processOrder(uploaded_file_loc, restaurant, driver_list, is_lunch):
+    today = date.today()
+    # print("Start processes")
+    today = str(today)
+    Order.pdf2DB(uploaded_file_loc,restaurant.idRestaurant,today, is_lunch)
+    # print('PDF2DB DONE')
+    Order.assign_order_driver(restaurant.idRestaurant,today,driver_list, is_lunch)
+    # print('assign_order_driver DONE!')
+    Order.generate_sequence(restaurant,today,is_lunch)
+    # print('generate_sequence Done')
+
+def uploadDone(request):
+    return render(request, 'upload_done.html')
 
 @login_required
 def order_for_kitchen(request):
@@ -38,6 +75,7 @@ def get_order_sequence(request):
     date = request.GET.get('date')
     lst = Order.generate_deliver_list(driver_id,date)
     return JsonResponse(lst,safe=False)
+
 def driverManager(request):
     if request.method == 'POST':
         driver_form = DriverForm(request.POST)
@@ -51,7 +89,7 @@ def driverManager(request):
             # print('New Name:', new_driver.driverName)
             # print('New Code:', new_driver.driverCode)
             # print('New ID:', new_driver.idDriver)
-            redirect('restaurant/driverManager')
+            # redirect('restaurant/driverManager')
         else:
             print('Fail')
     else:
@@ -60,14 +98,28 @@ def driverManager(request):
     drivers = Drivers.objects.filter(idRestaurant=restaurant)
 
     driver_form = DriverForm(initial={'idRestaurant': restaurant,'driverCode':genDriverCode(restaurant)})
-    # driver_form = DriverForm(initial={'idRestaurant': restaurant,'driverCode':genDriverCode(request.user.id, drivers)})
     return render(request, 'driverManager.html',{'restaurant': restaurant, 'drivers':drivers, 'driver_form':driver_form})
 
 def genDriverCode(restaurant):
-    code = str(restaurant.idRestaurant).zfill(6)
-    next_id = restaurant.driverNumber+1
-    code += str(next_id).zfill(6)
-    return code
+    alphabet='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    rest_id = restaurant.idRestaurant 
+    next_id = restaurant.driverNumber+1 
+    rest_code = ''
+    num_code = ''
+    while(rest_id!=0):
+        rest_id, i = divmod(rest_id, 36)
+        rest_code = alphabet[i] + rest_code
+    if len(rest_code)<3:
+        rest_code= rest_code.zfill(3)
+
+    while(next_id!=0):
+        next_id, i = divmod(next_id, 36)
+        num_code = alphabet[i] + num_code
+    if len(num_code)<3:
+        num_code= num_code.zfill(3)
+
+    return rest_code+num_code
+
 
 @login_required
 def driverDelete(request, id):
@@ -77,3 +129,15 @@ def driverDelete(request, id):
             driver.delete()
         return redirect('../../')
     return render(request, "driverDelete.html", {"driver": driver})
+
+@login_required
+def orderHistory(request):
+    if request.user.is_superuser:
+        return redirect('/admin/')
+    restaurant = Restaurant.objects.get(user_id = request.user.id)
+    drivers = Drivers.objects.filter(idRestaurant=restaurant)
+    orders = []
+    for driver in drivers:
+        orders += Orders.objects.filter(DriverId=driver)
+    return render(request, 'order_history.html',{'restaurant': restaurant,'orders':orders})
+

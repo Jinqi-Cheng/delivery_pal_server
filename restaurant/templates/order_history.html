@@ -1,21 +1,9 @@
 {% extends "restaurant_base.html" %}
-{% block title %}Dashboard{% endblock %}
+{% load bootstrap3 %}
+{% block title %}Order History{% endblock %}
 {% block content %}
-    <div class="container" id="uploadpdf">
+    <div class="container">
         <div class="row">
-            <div class="col-xs-5">
-                <h3>Add orders</h3>
-                <form action="/upload_profile/add/" enctype="multipart/form-data" method="post">
-                    {% csrf_token %}
-                    <label for="user_name">Order:</ label>
-                    <input type="file" name="pdf_file" accept=".pdf"><br>
-                    <input type="radio" checked="checked" name="dinnerlunch">Dinner</input>
-                    &nbsp;&nbsp;
-                    <input type="radio">Lunch</input>
-                    <input type="submit" value="Submit" />
-                </form>
-            </div>
-            {% comment %} <div class="col-xs-12"> {% endcomment %}
             <div>
                 <h3>Orders Checklist</h3>
                 <table class="table table-bordered table-hover table-striped">
@@ -44,7 +32,6 @@
                         {% endfor %}
                     </tbody>
                 </table>
-                <p><button>Clear</button>  <button>Confirm</button></p>
             </div>
         </div>
     </div>
