@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
-from django.db.models import F
+from django.db.models import F,Max
 
 from django.http import JsonResponse
 from .models import Orders, Drivers
@@ -11,6 +11,7 @@ from .Order import Order
 import datetime
 from .forms import DriverForm
 
+from collections import defaultdict
 # Create your views here.
 
 @login_required
@@ -77,3 +78,29 @@ def driverDelete(request, id):
             driver.delete()
         return redirect('../../')
     return render(request, "driverDelete.html", {"driver": driver})
+
+@login_required
+def contact_us(request):
+    restaurant = Restaurant.objects.get(user_id=request.user.id)
+    return render(request,"contact_us.html",{'restaurant': restaurant})
+
+@login_required
+def printable_routes(request):
+    restaurant = Restaurant.objects.get(user_id=request.user.id)
+    datetime = Orders.objects.filter(idRestaurant_id=restaurant).all().aggregate(Max("OrderDate"))
+    orders = Orders.objects.filter(idRestaurant_id=restaurant,
+                                   OrderDate=datetime['OrderDate__max']).values("DriverId__driverCode",
+                                                                                "DriverId__driverName",
+                                                              "idDisplay",
+                                                              "Address",
+                                                              "Meals").order_by("Sequence")
+    driver_dic = defaultdict(list)
+    print(orders)
+    meal2str = lambda meals: [key+" X "+value for key,value in meals.items()]
+    for order in orders:
+        driver_dic[(order["DriverId__driverName"],order["DriverId__driverCode"])]\
+            .append({'idDisplay':order['idDisplay'],
+                     'Address':order['Address'],
+                     'Meals':meal2str(order['Meals'])})
+    print(driver_dic)
+    return render(request, "printable_routes.html",{'restaurant':restaurant,'drivers':driver_dic.items()})
