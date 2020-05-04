@@ -1,7 +1,8 @@
+from django.core.files.storage import FileSystemStorage
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
-from django.db.models import F
+from django.db.models import F, Max
 
 from django.http import JsonResponse
 from .models import Orders, Drivers
@@ -65,9 +66,11 @@ def uploadDone(request):
 def order_for_kitchen(request):
     if request.user.is_superuser:
         return redirect('/admin/')
+
     restaurant = Restaurant.objects.get(user_id=request.user.id)
+    datetime = Orders.objects.filter(idRestaurant_id=restaurant).all().aggregate(Max("OrderDate"))
     print(restaurant)
-    dic = Order.parser_meals(restaurant.idRestaurant,"2020-05-01",True)
+    dic = Order.parser_meals(restaurant.idRestaurant,datetime['OrderDate__max'])
     return render(request,'order_for_kitchen.html',{'restaurant': restaurant, 'orders':dic.items()})
 
 def get_order_sequence(request):

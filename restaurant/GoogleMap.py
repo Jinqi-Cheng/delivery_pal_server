@@ -14,15 +14,24 @@ def geocode(addr_list):
     lat = []
     lng = []
     res = []
+    err = []
+    good_addr = []
     for addr in addresses:
         url = url_base.format(addr, api_key)
+        if "（" in url or "，" in url or "ﬂ" in url:
+            err.append(addr)
+            continue
         wp = urllib.request.urlopen(url)
 
         pw = wp.read()
         data = json.loads(pw)
-        res.append([data["results"][0]["geometry"]["location"]['lat'],
-                   data["results"][0]["geometry"]["location"]['lng']])
-    return res
+        if data['status'] == "REQUEST_DENIED":
+            err.append(addr)
+        else:
+            good_addr.append(addr)
+            res.append([data["results"][0]["geometry"]["location"]['lat'],
+                        data["results"][0]["geometry"]["location"]['lng']])
+    return res,good_addr,err
 def distance_matrix(addr_list):
     assert len(addr_list) <= 10
     addresses = [addr.replace(" ", "+") for addr in addr_list]
@@ -42,9 +51,10 @@ def distance_matrix(addr_list):
             matrix[row_index].append(item['distance']['value'])
     return matrix
 def position_dict(addr_list):
-    positions = geocode(addr_list)
+    positions,good_addr,err = geocode(addr_list)
     dic = dict()
     for index1,point1 in enumerate(positions):
         for index2,point2 in enumerate(positions):
+            # print(point1)
             dic[(index1,index2)] = math.sqrt((point1[0]-point2[0])**2+(point1[1]-point2[1])**2)
     return dic
