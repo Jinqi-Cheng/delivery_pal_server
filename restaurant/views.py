@@ -1,7 +1,8 @@
+from django.core.files.storage import FileSystemStorage
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
-from django.db.models import F
+from django.db.models import F, Max
 
 from django.http import JsonResponse
 from .models import Orders, Drivers
@@ -145,14 +146,18 @@ def printable_routes(request):
                                                                                 "DriverId__driverName",
                                                               "idDisplay",
                                                               "Address",
+                                                              "Phone",
+                                                              "Note",
                                                               "Meals").order_by("Sequence")
     driver_dic = defaultdict(list)
-    print(orders)
+    # print(orders)
     meal2str = lambda meals: [key+" X "+value for key,value in meals.items()]
     for order in orders:
         driver_dic[(order["DriverId__driverName"],order["DriverId__driverCode"])]\
             .append({'idDisplay':order['idDisplay'],
                      'Address':order['Address'],
+                     'Phone':order['Phone'],
+                     'Note':order['Note'],
                      'Meals':meal2str(order['Meals'])})
     print(driver_dic)
     return render(request, "printable_routes.html",{'restaurant':restaurant,'drivers':driver_dic.items()})

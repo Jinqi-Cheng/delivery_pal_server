@@ -10,20 +10,24 @@
                 <thead>
                     <tr>
                          <th>ID</th>
+                        <th>电话</th>
                         <th>地址</th>
                         <th>菜品</th>
+                        <th>备注</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for order in orders %}
                     <tr>
                         <td class="col-md-1">{{ order.idDisplay }}</td>
+                        <td class="col-md-1">{{ order.Phone }}</td>
                         <td class="col-md-2">{{ order.Address }}</td>
                         <td class="col-md-3">
                             {% for meal in order.Meals %}
                                 <span> {{ meal }}</span><br>
                             {% endfor %}
                         </td>
+                        <td class="col-md-1">{{ order.Note }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
