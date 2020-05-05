@@ -86,6 +86,7 @@ class Order:
         if not len(order_obj):
             order_obj = Orders.objects.filter(DriverId_id=driver_id,
                                                OrderDate=date + " 12:00").values("ReceiverName","idDisplay","Address","Phone","Note","Meals").order_by("Sequence")
+        # print("phone:" ,order_obj[0]['Phone'])
         lst = [{'name':order["ReceiverName"],
                 'orderId':str(order['idDisplay']),
                 'address':order['Address'],
