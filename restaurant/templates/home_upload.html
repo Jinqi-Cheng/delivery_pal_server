@@ -1,0 +1,24 @@
+{% extends "restaurant_base.html" %}
+{% load bootstrap3 %}
+{% block title %}Home{% endblock %}
+{% block content %}
+    <h2>Upload PDF</h2>
+    <div class="container" id="uploadpdf">
+        <div class="row">
+            <div>
+                <form action="." method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% bootstrap_form uploadSel_form %}
+                    {% buttons %}
+                        <button type="submit" class="btn btn-primary">
+                            Add
+                        </button>
+                    {% endbuttons %}
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% comment %} <div class="row kpx_row-sm-offset-3">
+<div class="col-xs-12 col-sm-6"> {% endcomment %}

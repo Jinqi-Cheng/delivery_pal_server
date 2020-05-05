@@ -1,0 +1,41 @@
+{% extends "restaurant_base.html" %}
+{% load bootstrap3 %}
+{% block title %}Order History{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div>
+                <h3>Orders Checklist</h3>
+                <table class="table table-bordered table-hover table-striped">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Price</th>
+                            <th>Receiver</th>
+                            <th>Meals</th>
+                            <th>Order Date</th>
+                            <th>Driver ID</th>
+                            <th>Address</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                            <tr>
+                                <td>{{order.idOrder}}</td>
+                                <td>{{order.Price}}</td>
+                                <td>{{order.ReceiverName}}</td>
+                                <td>{{order.Meals}}</td>
+                                <td>{{order.OrderDate}}</td>
+                                <td>{{order.DriverId.idDriver}}</td>
+                                <td>{{order.Address}}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% comment %} <div class="row kpx_row-sm-offset-3">
+<div class="col-xs-12 col-sm-6"> {% endcomment %}
