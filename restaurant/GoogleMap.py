@@ -22,10 +22,18 @@ def geocode(addr_list):
             print("url:",url)
             err.append(addr)
             continue
-        wp = urllib.request.urlopen(url)
 
-        pw = wp.read()
-        data = json.loads(pw)
+        data = None
+        try:
+            wp = urllib.request.urlopen(url)
+
+            pw = wp.read()
+            data = json.loads(pw)
+        except :
+            print("err: ",url)
+            err.append(addr)
+            continue
+
         # print("data:",url)
         if data['status'] == "REQUEST_DENIED":
             print("data:", url)
