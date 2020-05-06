@@ -5,6 +5,7 @@ Create Date ,
 from collections import defaultdict
 from itertools import permutations
 from clustering.equal_groups import EqualGroupsKMeans
+import re
 
 from .models import Orders
 from accounts.models import Restaurant
@@ -68,8 +69,8 @@ class Order:
         with open(file_path, "rb") as pdf_file:
             text = read_pdf(pdf_file)
             text = "".join(text)
-            text = text.split("打印订单 - 华⼈⽣鲜第⼀站")
-            text = text[1:-1]
+            text = re.split("Order number",text)
+            text = text[1:]
             for txt in text:
                 meals = fetch_dishes(txt)
                 meals_dic = {key:value for key,value in meals}
@@ -114,22 +115,32 @@ class Order:
     @classmethod
     def assign_order_driver(cls,restaurant_id,date,driver_list,is_lunch):
         date += " 12:00" if is_lunch else " 18:00"
-        address = Orders.objects.filter(idRestaurant_id=1,OrderDate=date).values("Address")
+        print(date)
+        address = Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=date).values("Address","idDisplay")
+        addr_map_id = { addr['Address']:addr['idDisplay'] for addr in address}
         address_list = [addr['Address'] for addr in address]
-        position = geocode(address_list)
-        cluster_model =EqualGroupsKMeans(n_clusters=len(driver_list),random_state=0)
+        position,good_addr,err = geocode(address_list)
+        print(position)
+        cluster_model =EqualGroupsKMeans(n_clusters=len(driver_list)-1,random_state=0)
         cluster_model.fit(position)
-        for index,addr in enumerate(address_list):
+        for index,addr in enumerate(good_addr):
             Orders.objects.filter(idRestaurant_id=restaurant_id,
                                   OrderDate=date,
-                                  Address=addr).update(DriverId_id = driver_list[cluster_model.labels_[index]])
-
+                                  Address=addr.replace("+"," ")).update(DriverId_id = driver_list[cluster_model.labels_[index]])
+        for index,addr in enumerate(err):
+            Orders.objects.filter(idRestaurant_id=restaurant_id,
+                                  OrderDate=date,
+                                  Address=addr.replace("+"," ")).update(DriverId_id=driver_list[-1])
     @classmethod
     def generate_sequence(cls,restaurant_id,date,is_lunch):
         date += " 12:00" if is_lunch else " 18:00"
         driver_list_query = Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=date).values("DriverId_id").distinct()
         driver_list = [value['DriverId_id'] for value in driver_list_query]
         for driver in driver_list:
+            """____________temp___________"""
+            if driver==9:
+                continue
+            """____________tempend___________"""
             order_list = Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=date,DriverId_id=driver).values("Address","idDisplay")
             addr_list = []
             id_list = []
