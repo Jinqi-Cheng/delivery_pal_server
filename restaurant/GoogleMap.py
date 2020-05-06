@@ -9,7 +9,7 @@ from collections import defaultdict
 import math
 def geocode(addr_list):
     addresses = [addr.replace(" ", "+") for addr in addr_list]
-    api_key = "AIzaSyAWMOWfy7Sxeh4Q-NV-pSEg3wPmxCQCUFQ"
+    api_key = "AIzaSyB6qF6LxDz2bo1cY0A_yqVAvjl1wGk20Ls"
     url_base = "https://maps.googleapis.com/maps/api/geocode/json?address={}&key={}"
     lat = []
     lng = []
@@ -18,16 +18,21 @@ def geocode(addr_list):
     good_addr = []
     for addr in addresses:
         url = url_base.format(addr, api_key)
-        if "（" in url or "，" in url or "ﬂ" or "#" in url:
+        if "（" in url or "，" in url or "ﬂ" in url or "#" in url:
+            print("url:",url)
             err.append(addr)
             continue
         wp = urllib.request.urlopen(url)
 
         pw = wp.read()
         data = json.loads(pw)
+        # print("data:",url)
         if data['status'] == "REQUEST_DENIED":
+            print("data:", url)
+            print(data)
             err.append(addr)
         else:
+
             good_addr.append(addr)
             res.append([data["results"][0]["geometry"]["location"]['lat'],
                         data["results"][0]["geometry"]["location"]['lng']])
@@ -39,6 +44,7 @@ def distance_matrix(addr_list):
     api_key = "AIzaSyB6qF6LxDz2bo1cY0A_yqVAvjl1wGk20Ls"
     url = "https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins={}&destinations={}&key={}".format(
         addr_str, addr_str, api_key)
+
     wp = urllib.request.urlopen(url)
 
     pw = wp.read()

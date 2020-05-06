@@ -50,7 +50,6 @@ def fetch_note(txt):
     return note[0] if len(note) else ""
 def fetch_zip(txt):
     zip = re.findall(re.compile(r"California, (\d{5}), United States",re.S),txt)[0]
-    print(zip)
     return zip
 def fetch_price(txt):
     price = re.findall(re.compile(r"Amount to be paid(\d*\.\d*)\D", re.S), txt)[0]
