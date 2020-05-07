@@ -8,14 +8,16 @@
                 <thead>
                     <tr>
                         <th>菜品名称</th>
+                        <th>菜品总数</th>
                         <th>订单编号</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for key,value in orders %}
                         <tr>
-                            <td>{{key}}</td>
-                            <td>{{value}}</td>
+                            <td>{{ key }}</td>
+                            <td>{{ value.1 }}</td>
+                            <td>{{ value.0 }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
