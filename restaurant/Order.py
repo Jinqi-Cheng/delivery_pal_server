@@ -135,10 +135,10 @@ class Order:
                                       Note=fetch_note(txt))
     @classmethod
     def generate_deliver_list(cls,driver_id, date):
-        order_obj = Orders.objects.filter(DriverId_id=driver_id,
+        order_obj = Orders.objects.filter(DriverId__driverCode=driver_id,
                                            OrderDate=date+" 18:00").values("ReceiverName","idDisplay","Address","Phone","Note","Meals").order_by("Sequence")
         if not len(order_obj):
-            order_obj = Orders.objects.filter(DriverId_id=driver_id,
+            order_obj = Orders.objects.filter(DriverId__driverCode=driver_id,
                                                OrderDate=date + " 12:00").values("ReceiverName","idDisplay","Address","Phone","Note","Meals").order_by("Sequence")
         # print("phone:" ,order_obj[0]['Phone'])
         lst = [{'name':order["ReceiverName"],
