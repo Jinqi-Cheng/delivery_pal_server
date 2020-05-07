@@ -52,8 +52,12 @@ def processOrder(uploaded_file_loc, restaurant, driver_list, is_lunch):
     today = date.today()
     print("Start processes")
     today = str(today)
-    Order.pdf2DB(uploaded_file_loc,restaurant.idRestaurant,today, is_lunch)
-    print('PDF2DB DONE')
+    if uploaded_file_loc[-3:] == 'pdf':
+        Order.pdf2DB(uploaded_file_loc,restaurant.idRestaurant,today, is_lunch)
+        print('PDF2DB DONE')
+    else:
+        Order.csv2DB(uploaded_file_loc, restaurant.idRestaurant, today, is_lunch)
+        print('CSV2DB DONE')
     Order.assign_order_driver(restaurant.idRestaurant,today,driver_list, is_lunch)
     print('assign_order_driver DONE!')
     Order.generate_sequence(restaurant,today,is_lunch)
@@ -69,6 +73,7 @@ def order_for_kitchen(request):
     restaurant = Restaurant.objects.get(user_id=request.user.id)
     datetime = Orders.objects.filter(idRestaurant_id=restaurant).all().aggregate(Max("OrderDate"))
     dic = Order.parser_meals(restaurant.idRestaurant,datetime['OrderDate__max'])
+    dic = {key:(value,len(value)) for key,value in dic.items()}
     return render(request,'order_for_kitchen.html',{'restaurant': restaurant, 'orders':dic.items()})
 
 def get_order_sequence(request):
@@ -148,18 +153,27 @@ def printable_routes(request):
                                                               "Address",
                                                               "Phone",
                                                               "Note",
+                                                              "isPickup",
                                                               "Meals").order_by("Sequence")
     driver_dic = defaultdict(list)
     # print(orders)
     meal2str = lambda meals: [key+" X "+value for key,value in meals.items()]
     for order in orders:
         if not order["DriverId__driverCode"]:
-            driver_dic[("错误订单", "")] \
-                .append({'idDisplay': order['idDisplay'],
-                         'Address': order['Address'],
-                         'Phone': order['Phone'],
-                         'Note': order['Note'],
-                         'Meals': meal2str(order['Meals'])})
+            if order["isPickup"]:
+                driver_dic[("自提:", order['Address'])] \
+                    .append({'idDisplay': order['idDisplay'],
+                             'Address': order['Address'],
+                             'Phone': order['Phone'],
+                             'Note': order['Note'],
+                             'Meals': meal2str(order['Meals'])})
+            else:
+                driver_dic[("错误订单", "")] \
+                    .append({'idDisplay': order['idDisplay'],
+                             'Address': order['Address'],
+                             'Phone': order['Phone'],
+                             'Note': order['Note'],
+                             'Meals': meal2str(order['Meals'])})
         else:
             driver_dic[(order["DriverId__driverName"],order["DriverId__driverCode"])]\
                 .append({'idDisplay':order['idDisplay'],
