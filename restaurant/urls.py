@@ -10,5 +10,6 @@ urlpatterns = [
     path('driverManager/', views.driverManager, name='driverManager'),
     path('driverManager/<int:id>/delete/', views.driverDelete, name='drivers-delete'),
     path('dashboard/upload_done/', views.uploadDone, name='uploadDone'),
-    path('order_history/', views.orderHistory, name='order_history'),
+    # path('order_history/', views.orderHistory, name='order_history'),
+    path("order_history/", views.orderHistoryWithFilter.as_view(), name="order_history"),
 ]
