@@ -9,9 +9,14 @@ from .models import Orders, Drivers
 from accounts.models import Restaurant
 from .Order import Order
 from .forms import DriverForm, uploadForm
+from .tables import OrderTable,OrderFilter
+from django.db.models import Sum
+from django_filters.views import FilterView
+from django_tables2.views import SingleTableMixin
 
 from datetime import date
 import threading
+import decimal
 
 from collections import defaultdict
 # Create your views here.
@@ -137,6 +142,36 @@ def driverDelete(request, id):
         return redirect('../../')
     return render(request, "driverDelete.html", {"driver": driver})
 
+# @login_required
+class orderHistoryWithFilter(SingleTableMixin, FilterView):
+    table_class = OrderTable
+    model = Orders
+    template_name = "order_history.html"
+    filterset_class = OrderFilter
+    paginate_by = 15
+
+    def get_queryset(self):
+        restaurant = Restaurant.objects.get(user_id = self.request.user.id)
+        return Orders.objects.filter(idRestaurant=restaurant)
+
+    def get_table_kwargs(self):
+        return {"template_name": "django_tables2/bootstrap.html"}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs) # get the default context data
+        query = self.filterset.qs
+        if not query:
+            context['commission'] = 0
+            context['amount'] = 0
+        else:
+            amount = query.aggregate(Sum('Price'))
+            commission = amount['Price__sum']*decimal.Decimal(0.4)
+            commission = "{:.3f}".format(commission)
+            amount = "{:.2f}".format(decimal.Decimal(amount['Price__sum']))
+            context['commission'] = commission
+            context['amount'] = amount
+        return context
+
 @login_required
 def contact_us(request):
     restaurant = Restaurant.objects.get(user_id=request.user.id)
@@ -182,16 +217,4 @@ def printable_routes(request):
                          'Note':order['Note'],
                          'Meals':meal2str(order['Meals'])})
     return render(request, "printable_routes.html",{'restaurant':restaurant,'drivers':driver_dic.items()})
-
-
-@login_required
-def orderHistory(request):
-    if request.user.is_superuser:
-        return redirect('/admin/')
-    restaurant = Restaurant.objects.get(user_id = request.user.id)
-    drivers = Drivers.objects.filter(idRestaurant=restaurant)
-    orders = []
-    for driver in drivers:
-        orders += Orders.objects.filter(DriverId=driver)
-    return render(request, 'order_history.html',{'restaurant': restaurant,'orders':orders})
 
