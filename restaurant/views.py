@@ -1,8 +1,8 @@
+from django.core.files.storage import FileSystemStorage
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
-from django.db.models import F
-from django.core.files.storage import FileSystemStorage
+from django.db.models import F, Max
 
 from django.http import JsonResponse
 from .models import Orders, Drivers
@@ -11,11 +11,14 @@ from .Order import Order
 from .forms import DriverForm, uploadForm
 from .tables import OrderTable,OrderFilter
 from django.db.models import Sum
+from django_filters.views import FilterView
+from django_tables2.views import SingleTableMixin
 
 from datetime import date
 import threading
 import decimal
 
+from collections import defaultdict
 # Create your views here.
 
 @login_required
@@ -52,14 +55,18 @@ def dashboard(request):
 
 def processOrder(uploaded_file_loc, restaurant, driver_list, is_lunch):
     today = date.today()
-    # print("Start processes")
+    print("Start processes")
     today = str(today)
-    Order.pdf2DB(uploaded_file_loc,restaurant.idRestaurant,today, is_lunch)
-    # print('PDF2DB DONE')
+    if uploaded_file_loc[-3:] == 'pdf':
+        Order.pdf2DB(uploaded_file_loc,restaurant.idRestaurant,today, is_lunch)
+        print('PDF2DB DONE')
+    else:
+        Order.csv2DB(uploaded_file_loc, restaurant.idRestaurant, today, is_lunch)
+        print('CSV2DB DONE')
     Order.assign_order_driver(restaurant.idRestaurant,today,driver_list, is_lunch)
-    # print('assign_order_driver DONE!')
+    print('assign_order_driver DONE!')
     Order.generate_sequence(restaurant,today,is_lunch)
-    # print('generate_sequence Done')
+    print('generate_sequence Done')
 
 def uploadDone(request):
     return render(request, 'upload_done.html')
@@ -69,8 +76,9 @@ def order_for_kitchen(request):
     if request.user.is_superuser:
         return redirect('/admin/')
     restaurant = Restaurant.objects.get(user_id=request.user.id)
-    print(restaurant)
-    dic = Order.parser_meals(restaurant.idRestaurant,"2020-05-01",True)
+    datetime = Orders.objects.filter(idRestaurant_id=restaurant).all().aggregate(Max("OrderDate"))
+    dic = Order.parser_meals(restaurant.idRestaurant,datetime['OrderDate__max'])
+    dic = {key:(value,len(value)) for key,value in dic.items()}
     return render(request,'order_for_kitchen.html',{'restaurant': restaurant, 'orders':dic.items()})
 
 def get_order_sequence(request):
@@ -101,12 +109,13 @@ def driverManager(request):
     drivers = Drivers.objects.filter(idRestaurant=restaurant)
 
     driver_form = DriverForm(initial={'idRestaurant': restaurant,'driverCode':genDriverCode(restaurant)})
+    # driver_form = DriverForm(initial={'idRestaurant': restaurant,'driverCode':genDriverCode(request.user.id, drivers)})
     return render(request, 'driverManager.html',{'restaurant': restaurant, 'drivers':drivers, 'driver_form':driver_form})
 
 def genDriverCode(restaurant):
     alphabet='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    rest_id = restaurant.idRestaurant 
-    next_id = restaurant.driverNumber+1 
+    rest_id = restaurant.idRestaurant
+    next_id = restaurant.driverNumber+1
     rest_code = ''
     num_code = ''
     while(rest_id!=0):
@@ -132,10 +141,6 @@ def driverDelete(request, id):
             driver.delete()
         return redirect('../../')
     return render(request, "driverDelete.html", {"driver": driver})
-
-
-from django_filters.views import FilterView
-from django_tables2.views import SingleTableMixin
 
 # @login_required
 class orderHistoryWithFilter(SingleTableMixin, FilterView):
@@ -167,4 +172,49 @@ class orderHistoryWithFilter(SingleTableMixin, FilterView):
             context['amount'] = amount
         return context
 
+@login_required
+def contact_us(request):
+    restaurant = Restaurant.objects.get(user_id=request.user.id)
+    return render(request,"contact_us.html",{'restaurant': restaurant})
+
+@login_required
+def printable_routes(request):
+    restaurant = Restaurant.objects.get(user_id=request.user.id)
+    datetime = Orders.objects.filter(idRestaurant_id=restaurant).all().aggregate(Max("OrderDate"))
+    orders = Orders.objects.filter(idRestaurant_id=restaurant,
+                                   OrderDate=datetime['OrderDate__max']).values("DriverId__driverCode",
+                                                                                "DriverId__driverName",
+                                                              "idDisplay",
+                                                              "Address",
+                                                              "Phone",
+                                                              "Note",
+                                                              "isPickup",
+                                                              "Meals").order_by("Sequence")
+    driver_dic = defaultdict(list)
+    # print(orders)
+    meal2str = lambda meals: [key+" X "+value for key,value in meals.items()]
+    for order in orders:
+        if not order["DriverId__driverCode"]:
+            if order["isPickup"]:
+                driver_dic[("自提:", order['Address'])] \
+                    .append({'idDisplay': order['idDisplay'],
+                             'Address': order['Address'],
+                             'Phone': order['Phone'],
+                             'Note': order['Note'],
+                             'Meals': meal2str(order['Meals'])})
+            else:
+                driver_dic[("错误订单", "")] \
+                    .append({'idDisplay': order['idDisplay'],
+                             'Address': order['Address'],
+                             'Phone': order['Phone'],
+                             'Note': order['Note'],
+                             'Meals': meal2str(order['Meals'])})
+        else:
+            driver_dic[(order["DriverId__driverName"],order["DriverId__driverCode"])]\
+                .append({'idDisplay':order['idDisplay'],
+                         'Address':order['Address'],
+                         'Phone':order['Phone'],
+                         'Note':order['Note'],
+                         'Meals':meal2str(order['Meals'])})
+    return render(request, "printable_routes.html",{'restaurant':restaurant,'drivers':driver_dic.items()})
 

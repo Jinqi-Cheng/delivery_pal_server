@@ -20,18 +20,19 @@ class DriverForm(forms.ModelForm):
         model = Drivers
         fields = ['driverName','idRestaurant','driverCode']
 
-
 class MyMultipleModelChoiceField(forms.ModelMultipleChoiceField):
     def label_from_instance(self, obj):
-        return "%s | %s" % (obj.driverName, obj.driverCode)
-
+        return  "%s | %s" % (obj.driverName, obj.driverCode)
 class uploadForm(forms.Form): 
-    drivers = MyMultipleModelChoiceField(queryset=Drivers.objects.none(), widget=forms.CheckboxSelectMultiple())     
-    file = forms.FileField(validators=[ FileExtensionValidator(allowed_extensions=['pdf'])]    \
-        ,widget=forms.FileInput(attrs={'accept':'.pdf'}))
+    drivers = MyMultipleModelChoiceField(queryset=Drivers.objects.none(), widget=forms.CheckboxSelectMultiple())
+    file = forms.FileField(validators=[ FileExtensionValidator(allowed_extensions=['pdf','csv'])]    \
+        ,widget=forms.FileInput(attrs={'accept':'.pdf,.csv'}))
     Period = forms.ChoiceField(required=True, widget=forms.RadioSelect(attrs={'class': 'Radio'}), choices=(('opt1','Lunch'),('opt2','Dinner'),))
 
     def __init__(self, restaurant_id,*args, **kwargs): 
         super(uploadForm, self).__init__(*args, **kwargs)
         restaurant = Restaurant.objects.get(user_id = restaurant_id)
         self.fields['drivers'].queryset = Drivers.objects.filter(idRestaurant=restaurant)
+
+    def label_from_instance(self, obj):
+        return "%s | %s" % (obj.name, obj.field1)

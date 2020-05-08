@@ -1,10 +1,13 @@
 """
-Create Date , 
-@author: 
+Create Date ,
+@author:
 """
 from collections import defaultdict
 from itertools import permutations
 from clustering.equal_groups import EqualGroupsKMeans
+import re
+from django.db.models import F, Max
+import pandas as pd
 
 from .models import Orders
 from accounts.models import Restaurant
@@ -62,14 +65,65 @@ def insertion_permutation_sort(addr_list,id_list):
     return id_list
 class Order:
 
+
+    @classmethod
+    def csv2DB(cls, file_path,restaurant_id,date,is_lunch):
+        date += " 12:00" if is_lunch else " 18:00"
+
+        Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=date).delete()
+        df = pd.read_csv(file_path)
+        print(df.columns)
+        if "送货地址" in df.columns:
+            df['送货地址'] = df['送货地址'].astype(str)
+        if "提货点" in df.columns:
+            df['提货点'] = df['提货点'].astype(str)
+        if "现金支付金额" in df.columns:
+            df['现金支付金额'] = df['现金支付金额'].astype(float)
+        if "备注" in df.columns:
+            df["备注"] = df["备注"].astype(str)
+        print(df.dtypes)
+        print(df.备注)
+        length = len(df)
+        for row_index in range(length):
+            row = df.iloc[row_index]
+            id_display = row.订单序号
+            # pickup_address = row.提货点 if "提货点" in df.columns and row.提货点 != "nan" else ""
+            is_pickup = False
+            if "送货地址" in df.columns:
+                if row.送货地址 == "nan":
+                    is_pickup = True
+                    address = row.提货点 if "提货点" in df.columns and row.提货点 != "nan" else ""
+                else:
+                    is_pickup = False
+                    address = row.送货地址
+            address = address.strip("\n")
+            # address = row.送货地址 if "送货地址" in df.columns and row.送货地址 != "nan" else ""
+            phone = row.手机号码
+            name = row.客户昵称
+            note = row.备注 if "备注" in df.columns and row.备注 != "nan" else ""
+            price = row.现金支付金额
+            meals = re.findall(re.compile(r"(.*) \* (\d*)", re.M), row.商品汇总)
+            meals_dic = {key: value for key, value in meals}
+            # print("meals:", meals_dic)
+            Orders.objects.create(idRestaurant_id=restaurant_id,
+                                  idDisplay=id_display,
+                                  Price=price, ReceiverName=name,
+                                  Meals=meals_dic, OrderDate=date, DriverId=None, Address=address,
+                                  isPickup=is_pickup,
+                                  Phone=phone,
+                                  Note=note)
+
     @classmethod
     def pdf2DB(cls,file_path,restaurant_id,date,is_lunch):
         date += " 12:00" if is_lunch else " 18:00"
+
+        Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=date).delete()
+
         with open(file_path, "rb") as pdf_file:
             text = read_pdf(pdf_file)
             text = "".join(text)
-            text = text.split("打印订单 - 华⼈⽣鲜第⼀站")
-            text = text[1:-1]
+            text = re.split("Order number",text)
+            text = text[1:]
             for txt in text:
                 meals = fetch_dishes(txt)
                 meals_dic = {key:value for key,value in meals}
@@ -81,11 +135,12 @@ class Order:
                                       Note=fetch_note(txt))
     @classmethod
     def generate_deliver_list(cls,driver_id, date):
-        order_obj = Orders.objects.filter(DriverId_id=driver_id,
+        order_obj = Orders.objects.filter(DriverId__driverCode=driver_id,
                                            OrderDate=date+" 18:00").values("ReceiverName","idDisplay","Address","Phone","Note","Meals").order_by("Sequence")
         if not len(order_obj):
-            order_obj = Orders.objects.filter(DriverId_id=driver_id,
+            order_obj = Orders.objects.filter(DriverId__driverCode=driver_id,
                                                OrderDate=date + " 12:00").values("ReceiverName","idDisplay","Address","Phone","Note","Meals").order_by("Sequence")
+        # print("phone:" ,order_obj[0]['Phone'])
         lst = [{'name':order["ReceiverName"],
                 'orderId':str(order['idDisplay']),
                 'address':order['Address'],
@@ -97,8 +152,8 @@ class Order:
         # print(obj,type(obj))
         return lst
     @classmethod
-    def parser_meals(cls, restaurant_id, date, is_lunch):
-        date += " 12:00" if is_lunch else " 18:00"
+    def parser_meals(cls, restaurant_id, date):
+        # date += " 12:00" if is_lunch else " 18:00"
         obj = Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=date).values("Meals","idDisplay")
         if not len(obj):
             obj = Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=date).values("Meals","idDisplay")
@@ -113,22 +168,38 @@ class Order:
     @classmethod
     def assign_order_driver(cls,restaurant_id,date,driver_list,is_lunch):
         date += " 12:00" if is_lunch else " 18:00"
-        address = Orders.objects.filter(idRestaurant_id=1,OrderDate=date).values("Address")
-        address_list = [addr['Address'] for addr in address]
-        position = geocode(address_list)
-        cluster_model =EqualGroupsKMeans(n_clusters=len(driver_list),random_state=0)
+        address = Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=date).values("Address","idDisplay","isPickup")
+        address_list = []
+        pickup_list = []
+        for addr in address:
+            if addr['isPickup']:
+                pickup_list.append(addr['Address'])
+            else:
+                address_list.append(addr['Address'])
+        # address_list = [addr['Address'] for addr in address]
+        position,good_addr,err = geocode(address_list)
+        print(position,driver_list)
+        cluster_model = EqualGroupsKMeans(n_clusters=len(driver_list),random_state=0)
         cluster_model.fit(position)
-        for index,addr in enumerate(address_list):
+        for index,addr in enumerate(good_addr):
             Orders.objects.filter(idRestaurant_id=restaurant_id,
                                   OrderDate=date,
-                                  Address=addr).update(DriverId_id = driver_list[cluster_model.labels_[index]])
-
+                                  Address=addr.replace("+"," ")).update(DriverId_id = driver_list[cluster_model.labels_[index]])
+        for index,addr in enumerate(err):
+            Orders.objects.filter(idRestaurant_id=restaurant_id,
+                                  OrderDate=date,
+                                  Address=addr.replace("+"," ")).update(DriverId_id=None)
     @classmethod
     def generate_sequence(cls,restaurant_id,date,is_lunch):
         date += " 12:00" if is_lunch else " 18:00"
         driver_list_query = Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=date).values("DriverId_id").distinct()
         driver_list = [value['DriverId_id'] for value in driver_list_query]
+        print(driver_list)
         for driver in driver_list:
+
+            if driver==None:
+                continue
+            print("generate seq",driver)
             order_list = Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=date,DriverId_id=driver).values("Address","idDisplay")
             addr_list = []
             id_list = []

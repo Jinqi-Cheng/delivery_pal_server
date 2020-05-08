@@ -9,20 +9,42 @@ from collections import defaultdict
 import math
 def geocode(addr_list):
     addresses = [addr.replace(" ", "+") for addr in addr_list]
-    api_key = "AIzaSyAWMOWfy7Sxeh4Q-NV-pSEg3wPmxCQCUFQ"
+    api_key = "AIzaSyB6qF6LxDz2bo1cY0A_yqVAvjl1wGk20Ls"
     url_base = "https://maps.googleapis.com/maps/api/geocode/json?address={}&key={}"
     lat = []
     lng = []
     res = []
+    err = []
+    good_addr = []
     for addr in addresses:
         url = url_base.format(addr, api_key)
-        wp = urllib.request.urlopen(url)
+        if "（" in url or "，" in url or "ﬂ" in url or "#" in url:
+            print("url:",url)
+            err.append(addr)
+            continue
 
-        pw = wp.read()
-        data = json.loads(pw)
-        res.append([data["results"][0]["geometry"]["location"]['lat'],
-                   data["results"][0]["geometry"]["location"]['lng']])
-    return res
+        data = None
+        try:
+            wp = urllib.request.urlopen(url)
+
+            pw = wp.read()
+            data = json.loads(pw)
+        except :
+            print("err: ",url)
+            err.append(addr)
+            continue
+
+        # print("data:",url)
+        if data['status'] == "REQUEST_DENIED":
+            print("data:", url)
+            print(data)
+            err.append(addr)
+        else:
+
+            good_addr.append(addr)
+            res.append([data["results"][0]["geometry"]["location"]['lat'],
+                        data["results"][0]["geometry"]["location"]['lng']])
+    return res,good_addr,err
 def distance_matrix(addr_list):
     assert len(addr_list) <= 10
     addresses = [addr.replace(" ", "+") for addr in addr_list]
@@ -30,6 +52,7 @@ def distance_matrix(addr_list):
     api_key = "AIzaSyB6qF6LxDz2bo1cY0A_yqVAvjl1wGk20Ls"
     url = "https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins={}&destinations={}&key={}".format(
         addr_str, addr_str, api_key)
+
     wp = urllib.request.urlopen(url)
 
     pw = wp.read()
@@ -42,7 +65,7 @@ def distance_matrix(addr_list):
             matrix[row_index].append(item['distance']['value'])
     return matrix
 def position_dict(addr_list):
-    positions = geocode(addr_list)
+    positions,good_addr,err = geocode(addr_list)
     dic = dict()
     for index1,point1 in enumerate(positions):
         for index2,point2 in enumerate(positions):
