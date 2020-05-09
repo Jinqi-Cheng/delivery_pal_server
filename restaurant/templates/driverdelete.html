@@ -1,0 +1,14 @@
+{% extends "restaurant_base.html" %}
+{% load bootstrap3 %}
+{% block title %}Driver Delete{% endblock %}
+{% block content %}
+<div calss="col-sm-4">
+    {% comment %} <h3>Are you sure?</h3> {% endcomment %}
+    <h3>Are you sure you want to delete the Driver "{{driver.driverName}}" ?</h3>
+    {% comment %} <p>Are you sure you want to delete the Driver "{{driver.driveName}}" ?</p> {% endcomment %}
+    <form action='.' method='POST'>
+        {% csrf_token %}
+        <p><input type='submit' value='Yes, I&rsquo;m sure'/>  <a href="../../" class="btn btn-info" role="button">Cancel</a></p>
+    </form>
+</div>
+{% endblock %}
