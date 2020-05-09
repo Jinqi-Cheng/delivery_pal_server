@@ -12,5 +12,6 @@ urlpatterns = [
     path('dashboard/upload_done/', views.uploadDone, name='uploadDone'),
     path('order_history/', views.orderHistory, name='order_history'),
     path('contact_us/',views.contact_us,name='contact_us'),
-    path('printable_routes',views.printable_routes,name='printable_routes')
+    path('printable_routes',views.printable_routes,name='printable_routes'),
+    path('driver_item_list/',views.driver_item_list,name='driver_item_list')
 ]
