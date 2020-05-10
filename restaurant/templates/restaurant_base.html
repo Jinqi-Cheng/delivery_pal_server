@@ -5,11 +5,12 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}{% endblock %}</title>
-    <link href="{% static "stylesheets/projectstyle.css" %}" rel="stylesheet">
     <link href="https://netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="{% static "stylesheets/projectstyle.css" %}" rel="stylesheet">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     {% bootstrap_css %}
     {% bootstrap_javascript %}
+    <link href="{% static 'django_tables2/bootstrap.css' %}" rel="stylesheet" />
 </head>
 <body>
 
@@ -52,6 +53,9 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'order_for_kitchen' %}">订单分拣</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'driver_item_list' %}">司机货单</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'contact_us' %}">联系我们</a>

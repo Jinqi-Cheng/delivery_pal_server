@@ -31,6 +31,7 @@ def fetch_recipient_name(txt):
     return recipient_name
 def fetch_address(txt):
     addr = re.findall(re.compile(r"address:(.*), California", re.S), txt)[0]
+    addr = addr.replace("\n", "")
     return addr
 def fetch_phone_number(txt):
     phone_number = re.findall(re.compile(r"phone:(\d*)-*(\d*)-*(\d*)", re.S), txt)[0]

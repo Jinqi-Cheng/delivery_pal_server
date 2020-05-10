@@ -9,9 +9,14 @@ from .models import Orders, Drivers
 from accounts.models import Restaurant
 from .Order import Order
 from .forms import DriverForm, uploadForm
+from .tables import OrderTable,OrderFilter
+from django.db.models import Sum
+from django_filters.views import FilterView
+from django_tables2.views import SingleTableMixin
 
 from datetime import date
 import threading
+import decimal
 
 from collections import defaultdict
 # Create your views here.
@@ -137,6 +142,36 @@ def driverDelete(request, id):
         return redirect('../../')
     return render(request, "driverDelete.html", {"driver": driver})
 
+# @login_required
+class orderHistoryWithFilter(SingleTableMixin, FilterView):
+    table_class = OrderTable
+    model = Orders
+    template_name = "order_history.html"
+    filterset_class = OrderFilter
+    paginate_by = 15
+
+    def get_queryset(self):
+        restaurant = Restaurant.objects.get(user_id = self.request.user.id)
+        return Orders.objects.filter(idRestaurant=restaurant)
+
+    def get_table_kwargs(self):
+        return {"template_name": "django_tables2/bootstrap.html"}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs) # get the default context data
+        query = self.filterset.qs
+        if not query:
+            context['commission'] = 0
+            context['amount'] = 0
+        else:
+            amount = query.aggregate(Sum('Price'))
+            commission = amount['Price__sum']*decimal.Decimal(0.4)
+            commission = "{:.3f}".format(commission)
+            amount = "{:.2f}".format(decimal.Decimal(amount['Price__sum']))
+            context['commission'] = commission
+            context['amount'] = amount
+        return context
+
 @login_required
 def contact_us(request):
     restaurant = Restaurant.objects.get(user_id=request.user.id)
@@ -156,19 +191,21 @@ def printable_routes(request):
                                                               "isPickup",
                                                               "Meals").order_by("Sequence")
     driver_dic = defaultdict(list)
+    error_dic = defaultdict(list)
+    pickup_dic = defaultdict(list)
     # print(orders)
     meal2str = lambda meals: [key+" X "+value for key,value in meals.items()]
     for order in orders:
         if not order["DriverId__driverCode"]:
             if order["isPickup"]:
-                driver_dic[("自提:", order['Address'])] \
+                pickup_dic[("自提:", order['Address'])] \
                     .append({'idDisplay': order['idDisplay'],
                              'Address': order['Address'],
                              'Phone': order['Phone'],
                              'Note': order['Note'],
                              'Meals': meal2str(order['Meals'])})
             else:
-                driver_dic[("错误订单", "")] \
+                error_dic[("错误订单", "")] \
                     .append({'idDisplay': order['idDisplay'],
                              'Address': order['Address'],
                              'Phone': order['Phone'],
@@ -181,7 +218,7 @@ def printable_routes(request):
                          'Phone':order['Phone'],
                          'Note':order['Note'],
                          'Meals':meal2str(order['Meals'])})
-    return render(request, "printable_routes.html",{'restaurant':restaurant,'drivers':driver_dic.items()})
+    return render(request, "printable_routes.html",{'restaurant':restaurant,'drivers':driver_dic.items(),'error':error_dic.items(),'pickup':pickup_dic.items()})
 
 
 @login_required
@@ -195,3 +232,34 @@ def orderHistory(request):
         orders += Orders.objects.filter(DriverId=driver)
     return render(request, 'order_history.html',{'restaurant': restaurant,'orders':orders})
 
+@login_required
+def driver_item_list(request):
+    restaurant = Restaurant.objects.get(user_id=request.user.id)
+    datetime = Orders.objects.filter(idRestaurant_id=restaurant).all().aggregate(Max("OrderDate"))
+    orders = Orders.objects.filter(idRestaurant_id=restaurant,
+                                   OrderDate=datetime['OrderDate__max']).values("DriverId__driverCode",
+                                                                                "DriverId__driverName",
+                                                                                "Address",
+                                                                                "isPickup",
+                                                                                "Meals").order_by("Sequence")
+    driver_dic = defaultdict(lambda: defaultdict(int))
+    # print(orders)
+    # meal2str = lambda meals: [key + " X " + value for key, value in meals.items()]
+    for order in orders:
+        if not order["DriverId__driverCode"]:
+            if order["isPickup"]:
+                for meal,num in order['Meals'].items():
+                    # print(meal,num)
+                    driver_dic[("自提:", order['Address'])][meal]+=int(num)
+            else:
+                for meal,num in order['Meals'].items():
+                    # print(meal, num)
+                    driver_dic[("错误订单", "")][meal]+=int(num)
+        else:
+            for meal, num in order['Meals'].items():
+                # print(meal, num)
+                driver_dic[(order["DriverId__driverName"], order["DriverId__driverCode"])][meal] += int(num)
+    driver_item = defaultdict(list)
+    for name,orders in driver_dic.items():
+        driver_item[name] += [(key,value) for key,value in orders.items()]
+    return render(request, "driver_item_list.html", {'restaurant': restaurant, 'drivers': driver_item.items()})

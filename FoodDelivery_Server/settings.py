@@ -39,7 +39,10 @@ INSTALLED_APPS = [
     'accounts',
     'restaurant',
     'bootstrap3',
+    'django_tables2',
     'django.contrib.admin',
+    'django_filters',
+    'sslserver',
 ]
 
 MIDDLEWARE = [
@@ -77,14 +80,14 @@ WSGI_APPLICATION = 'FoodDelivery_Server.wsgi.application'
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'FoodDelivery1',
-        'USER': 'dell',
-        'PASSWORD': 'FoodDelivery1@',
-        'HOST': 'localhost',
-        'PORT': '3306',
-    },
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'FoodDelivery1',
+    #     'USER': 'dell',
+    #     'PASSWORD': 'FoodDelivery1@',
+    #     'HOST': 'localhost',
+    #     'PORT': '3306',
+    # },
     # 'default': {
     #     'ENGINE': 'django.db.backends.mysql',
     #     'NAME': 'fooddelivery',
@@ -95,12 +98,20 @@ DATABASES = {
     # }
     # 'default': {
     #     'ENGINE': 'django.db.backends.mysql',
-    #     'NAME': 'FoodDelivery',
-    #     'USER': 'kevin',
-    #     'PASSWORD': 'Kevin9694!',
+    #     'NAME': 'fooddelivery',
+    #     'USER': 'hsuan',
+    #     'PASSWORD': 'hsuan',
     #     'HOST': 'localhost',
     #     'PORT': '3306',
-    # },
+    # }
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'fooddelivery',
+        'USER': 'kevin',
+        'PASSWORD': 'Kevin9694!',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    },
 }
 
 
@@ -146,3 +157,11 @@ STATIC_URL = '/static/'
 # # # Custom
 LOGIN_REDIRECT_URL = '/restaurant/dashboard/'
 MEDIA_ROOT = os.path.join(BASE_DIR,'tempBin/')
+
+# DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap.html"
+# DJANGO_TABLES2_TEMPLATE = "django_tables2/semantic.html"
+# DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap4.html"
+# DJANGO_TABLES2_TEMPLATE = "django_tables2/table.html"
+# DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap-responsive.html"
+
+
