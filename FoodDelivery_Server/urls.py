@@ -21,9 +21,11 @@ from django.contrib.auth import views as auth_views
 from django.shortcuts import redirect
 
 urlpatterns = [
+    path('', include('accounts.urls')),
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
-    path('', lambda toac: redirect('accounts/login')),
+    # path('', lambda toac: redirect('home')),
+    # path('', lambda toac: redirect('accounts/login')),
     path('restaurant/', include('restaurant.urls')),
 
 ]

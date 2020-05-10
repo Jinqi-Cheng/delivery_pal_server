@@ -79,22 +79,22 @@ WSGI_APPLICATION = 'FoodDelivery_Server.wsgi.application'
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.mysql',
-    #     'NAME': 'FoodDelivery1',
-    #     'USER': 'dell',
-    #     'PASSWORD': 'FoodDelivery1@',
-    #     'HOST': 'localhost',
-    #     'PORT': '3306',
-    # },
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'fooddelivery',
-        'USER': 'hsuan',
-        'PASSWORD': 'hsuan',
+        'NAME': 'FoodDelivery1',
+        'USER': 'dell',
+        'PASSWORD': 'FoodDelivery1@',
         'HOST': 'localhost',
         'PORT': '3306',
-    }
+    },
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'fooddelivery',
+    #     'USER': 'hsuan',
+    #     'PASSWORD': 'hsuan',
+    #     'HOST': 'localhost',
+    #     'PORT': '3306',
+    # }
     # 'default': {
     #     'ENGINE': 'django.db.backends.mysql',
     #     'NAME': 'FoodDelivery',
@@ -146,13 +146,6 @@ STATIC_URL = '/static/'
 # STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # # # Custom
-LOGIN_REDIRECT_URL = '/restaurant/dashboard/'
+LOGIN_REDIRECT_URL = '/restaurant/upload/'
 MEDIA_ROOT = os.path.join(BASE_DIR,'tempBin/')
-
-# DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap.html"
-# DJANGO_TABLES2_TEMPLATE = "django_tables2/semantic.html"
-# DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap4.html"
-# DJANGO_TABLES2_TEMPLATE = "django_tables2/table.html"
-# DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap-responsive.html"
-
 

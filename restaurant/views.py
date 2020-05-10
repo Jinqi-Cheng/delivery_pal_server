@@ -22,7 +22,7 @@ from collections import defaultdict
 # Create your views here.
 
 @login_required
-def dashboard(request):
+def upload(request):
     if request.user.is_superuser:
         return redirect('/admin/')
     if request.method == 'POST':
@@ -33,14 +33,12 @@ def dashboard(request):
             fs = FileSystemStorage()
             filename = fs.save(pdf_file.name, pdf_file)
             uploaded_file_loc = "{0}/{1}".format(fs.location, filename)
-            # print('URL : ', uploaded_file_loc)
 
             # today = date.today()
             is_lunch = True if uploadSel_form.cleaned_data['Period']=='opt1' else False
             drivers = uploadSel_form.cleaned_data['drivers']
             driver_list = [ele.idDriver for ele in drivers]
             restaurant = Restaurant.objects.get(user_id = request.user.id)
-            # print(driver_list)
 
             today = date.today()
             precess_data = threading.Thread(target=processOrder, args=[uploaded_file_loc,restaurant,driver_list,is_lunch])
@@ -51,7 +49,8 @@ def dashboard(request):
     else:
         uploadSel_form = uploadForm(request.user.id)
     restaurant = Restaurant.objects.get(user_id = request.user.id)
-    return render(request, 'home_upload.html',{'restaurant':restaurant,'uploadSel_form':uploadSel_form})
+    return render(request, 'upload.html',{'restaurant':restaurant,'uploadSel_form':uploadSel_form})
+    # return render(request, 'home_upload.html',{'restaurant':restaurant,'uploadSel_form':uploadSel_form})
 
 def processOrder(uploaded_file_loc, restaurant, driver_list, is_lunch):
     today = date.today()
@@ -87,6 +86,7 @@ def get_order_sequence(request):
     lst = Order.generate_deliver_list(driver_id,date)
     return JsonResponse(lst,safe=False)
 
+@login_required
 def driverManager(request):
     if request.method == 'POST':
         driver_form = DriverForm(request.POST)
@@ -132,7 +132,6 @@ def genDriverCode(restaurant):
 
     return rest_code+num_code
 
-
 @login_required
 def driverDelete(request, id):
     driver = Drivers.objects.get(idDriver=id)
@@ -159,6 +158,9 @@ class orderHistoryWithFilter(SingleTableMixin, FilterView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs) # get the default context data
+        restaurant = Restaurant.objects.get(user_id = self.request.user.id)
+        context['restaurant'] = restaurant
+
         query = self.filterset.qs
         if not query:
             context['commission'] = 0
