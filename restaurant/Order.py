@@ -94,7 +94,8 @@ class Order:
                 else:
                     is_pickup = False
                     address = row.送货地址
-            address = address.strip("\n")
+            address = address.replace("\n", "")
+            # address = address.strip("\n")
             # address = row.送货地址 if "送货地址" in df.columns and row.送货地址 != "nan" else ""
             phone = row.手机号码
             name = row.客户昵称

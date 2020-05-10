@@ -191,19 +191,21 @@ def printable_routes(request):
                                                               "isPickup",
                                                               "Meals").order_by("Sequence")
     driver_dic = defaultdict(list)
+    error_dic = defaultdict(list)
+    pickup_dic = defaultdict(list)
     # print(orders)
     meal2str = lambda meals: [key+" X "+value for key,value in meals.items()]
     for order in orders:
         if not order["DriverId__driverCode"]:
             if order["isPickup"]:
-                driver_dic[("自提:", order['Address'])] \
+                pickup_dic[("自提:", order['Address'])] \
                     .append({'idDisplay': order['idDisplay'],
                              'Address': order['Address'],
                              'Phone': order['Phone'],
                              'Note': order['Note'],
                              'Meals': meal2str(order['Meals'])})
             else:
-                driver_dic[("错误订单", "")] \
+                error_dic[("错误订单", "")] \
                     .append({'idDisplay': order['idDisplay'],
                              'Address': order['Address'],
                              'Phone': order['Phone'],
@@ -216,7 +218,7 @@ def printable_routes(request):
                          'Phone':order['Phone'],
                          'Note':order['Note'],
                          'Meals':meal2str(order['Meals'])})
-    return render(request, "printable_routes.html",{'restaurant':restaurant,'drivers':driver_dic.items()})
+    return render(request, "printable_routes.html",{'restaurant':restaurant,'drivers':driver_dic.items(),'error':error_dic.items(),'pickup':pickup_dic.items()})
 
 
 @login_required

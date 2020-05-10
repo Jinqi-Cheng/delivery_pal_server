@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django_tables2',
     'django.contrib.admin',
     'django_filters',
+    'sslserver',
 ]
 
 MIDDLEWARE = [
@@ -87,22 +88,30 @@ DATABASES = {
     #     'HOST': 'localhost',
     #     'PORT': '3306',
     # },
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'fooddelivery',
+    #     'USER': 'hsuan',
+    #     'PASSWORD': 'hsuan',
+    #     'HOST': 'localhost',
+    #     'PORT': '3306',
+    # }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'fooddelivery',
+    #     'USER': 'hsuan',
+    #     'PASSWORD': 'hsuan',
+    #     'HOST': 'localhost',
+    #     'PORT': '3306',
+    # }
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'fooddelivery',
-        'USER': 'hsuan',
-        'PASSWORD': 'hsuan',
+        'USER': 'kevin',
+        'PASSWORD': 'Kevin9694!',
         'HOST': 'localhost',
         'PORT': '3306',
-    }
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.mysql',
-    #     'NAME': 'FoodDelivery',
-    #     'USER': 'kevin',
-    #     'PASSWORD': 'Kevin9694!',
-    #     'HOST': 'localhost',
-    #     'PORT': '3306',
-    # },
+    },
 }
 
 
