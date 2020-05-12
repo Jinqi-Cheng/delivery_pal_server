@@ -144,8 +144,7 @@ class Order:
                 'orderId':str(order['idDisplay']),
                 'address':order['Address'],
                 'phone':order['Phone'],
-                'note':order['Note']
-                   ,
+                'note':order['Note'],
                 'dishes':[meal+" X "+str(num) for meal,num in order['Meals'].items()]} for order in order_obj]
         # obj = Orders.objects.filter(idRestaurant=Restaurant.objects.get(idRestaurant=restaurant_id)
         #                             ,DriverId=driver_id,OrderDate=date).order_by("Sequence")
