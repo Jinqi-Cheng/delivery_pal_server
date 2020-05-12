@@ -17,8 +17,6 @@
     <div class="container-fluid">
         <div class="navbar-header">
             <span class="navbar-brand">Delivery Pal</span>
-            {% comment %} <a href="/"><span class="glyphicon glyphicon-home"></span>Delivery Pal</a> {% endcomment %}
-            {% comment %} <a class="navbar-brand" href="{% url 'upload' %}">Delivery Pal</a> {% endcomment %}
         </div>
         <ul class="nav navbar-nav navbar-left">
             <li><a href="/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
@@ -30,12 +28,12 @@
                 <li><a href="{% url 'profile' %}"><span class="glyphicon glyphicon-log-out"></span> Hello {{ request.user.username }}</a></li>
                 <li><a href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
             {% else %}
+                <li><a href="{% url 'signup' %}"><span class="glyphicon glyphicon-registration-mark"></span> Sign up</a></li>
                 <li><a href="{% url 'login' %}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
             {% endif %}
         </ul>
     </div>
 </nav>
-
 
 <div class="container">
     {% block content %}

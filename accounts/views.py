@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
+from django.contrib.auth.models import User
+from .forms import SignUpForm
 
 # Create your views here.
 
@@ -12,9 +14,6 @@ def homePage(request):
 @login_required
 def upload(request):
     return redirect('restaurant/upload.html')
-# @login_required
-# def dashboard(request):
-#     return redirect('restaurtant/dashboard.html')
 
 @login_required
 def profile(request):
@@ -27,3 +26,26 @@ def profile(request):
             return render(request, 'profile.html', {'restaurant': restaurant})
     else:
         return redirect('/accounts/login/',{'message':'Wrong password Please Try agagin'})
+
+from django.contrib.auth.models import User
+
+def signup(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password2']
+            name = form.cleaned_data['name']
+            
+            user = User.objects.create_user(username=username, password=password, email=email)
+
+            restaurant = Restaurant(user=user, name = name)
+            restaurant.save()
+
+            form = SignUpForm()
+            return render(request, 'signup/signup_page.html', {'form': form, 'successful_submit':True})
+    else:
+        form = SignUpForm()
+    return render(request, 'signup/signup_page.html', {'form': form})
