@@ -81,6 +81,8 @@ class Order:
             df['现金支付金额'] = df['现金支付金额'].astype(float)
         if "备注" in df.columns:
             df["备注"] = df["备注"].astype(str)
+        if "商品汇总" in df.columns:
+            df["商品汇总"] = df["商品汇总"].astype(str)
         length = len(df)
         for row_index in range(length):
             row = df.iloc[row_index]
@@ -101,9 +103,15 @@ class Order:
             name = row.客户昵称
             note = row.备注 if "备注" in df.columns and row.备注 != "nan" else ""
             price = row.现金支付金额
+            # print('商品汇总',row.商品汇总)
             meals = re.findall(re.compile(r"(.*) \* (\d*)", re.M), row.商品汇总)
+            if not meals: # original Weee UTF-8 CSV
+                """This is a bug from Weee. 
+                Weee's UTF-8 CSV puts the 商品汇总 into the last column, which is not properly.
+                So I have to chekc if the 商品汇总 is correct or I take the last column"""
+                meals = re.findall(re.compile(r"(.*) \* (\d*)", re.M), row[df.columns[-1]])
             meals_dic = {key: value for key, value in meals}
-            # print("meals:", meals_dic)
+            print("meals:", meals_dic)
             Orders.objects.create(idRestaurant_id=restaurant_id,
                                   idDisplay=id_display,
                                   Price=price, ReceiverName=name,
