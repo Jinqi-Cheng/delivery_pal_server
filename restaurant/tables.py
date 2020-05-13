@@ -14,18 +14,18 @@ class OrderTable(tables.Table):
     Receiver_Name = tables.Column(accessor='ReceiverName', verbose_name='Receiver',orderable = True)
     Meals = tables.Column(accessor='Meals')
     Drive_Id = tables.Column(accessor='DriverId__driverName',verbose_name='Driver', orderable = True)
-    OrderDate = tables.Column(verbose_name='Date')
+    OrderDate = tables.Column(verbose_name='Date', attrs={"td": {"width": "100px"}})
     Address = tables.Column(accessor='Address')
     Sequence = tables.Column(accessor='Sequence')
     Phone = tables.Column(accessor='Phone')
-    Note = tables.Column(accessor='Note')
+    Note = tables.Column(accessor='Note', attrs={"td": {"width": "100px"}})
 
     def render_Price(self, value):
         return "${}".format(decimal.Decimal(value).normalize())
     
     class Meta:
         template_name = "django_tables2/semantic.html"
-
+        attrs = {"border": "1px solid"}
 
 # from django.utils.datastructures import MultiValueDict
 from django.http import QueryDict
@@ -35,7 +35,6 @@ from datetime import datetime, timedelta
 class OrderFilter(django_filters.FilterSet):
     # Price__gt = django_filters.NumberFilter(field_name='Price', lookup_expr='gt')
     # Price__lt = django_filters.NumberFilter(field_name='Price', lookup_expr='lt')
-    # start = django_filters.DateFromToRangeFilter(field_name="OrderDate",
     datefilter = django_filters.DateFromToRangeFilter(field_name="OrderDate",
         widget=RangeWidget(attrs={'placeholder': 'MM/DD/YYYY', 'type': 'date', 'class': 'datepicker'}),
         )
@@ -49,10 +48,6 @@ class OrderFilter(django_filters.FilterSet):
             filter_values['datefilter_min']=start.strftime('%Y-%m-%d')
             filter_values['datefilter_max']=end.strftime("%Y-%m-%d")
             kwargs['data'] = filter_values
-            # print(kwargs)
-        # else:
-        #     filter_values = kwargs['data'].copy()
-        #     # print("Have : ", filter_values)
 
         super().__init__(*args, **kwargs)
 

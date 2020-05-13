@@ -3,14 +3,23 @@
     width: 100%;
 }
 
-.sidebar {
-    width: 250px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    z-index: 999;
-    /* background: #7386D5;
-    color: #fff; */
-    /* transition: all 0.3s; */
+#sidebar {
+    margin:0px;
+    padding:5px;
+    width: 160px;
+    /* background: #7386D5; */
 }
+
+#funcContent {
+    /* margin:0px; */
+    padding: 0px 0px 0px 5px;
+    /* background: rgb(79, 105, 209); */
+}
+
+#orderHistory {
+    padding:5px;
+    /* width:100%; */
+    overflow-x: scroll;
+    /* background: #bdb32b; */
+}
+

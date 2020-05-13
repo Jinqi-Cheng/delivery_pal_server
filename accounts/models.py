@@ -10,6 +10,8 @@ class Restaurant(models.Model):
     idRestaurant = models.AutoField(primary_key = True)
     name = models.CharField(max_length=64)
     driverNumber = models.PositiveIntegerField(default=0)
-
+    isActive = models.BooleanField(default=True)
+    expiryDate = models.DateTimeField(null=True, blank= True)
+    
     class Meta:
         db_table = 'Restaurant'

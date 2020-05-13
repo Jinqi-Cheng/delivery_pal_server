@@ -10,22 +10,24 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     {% bootstrap_css %}
     {% bootstrap_javascript %}
+    <link href="{% static "stylesheets/projectstyle.css" %}" rel="stylesheet">
 </head>
 <body>
 
-<nav class="navbar navbar-default">
+<nav class="navbar navbar-default" style="margin:0px;">
     <div class="container-fluid">
         <div class="navbar-header">
             <span class="navbar-brand">Delivery Pal</span>
         </div>
         <ul class="nav navbar-nav navbar-left">
             <li><a href="/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+            {% comment %} <li><a href="{% url 'upload2' %}"><span class="glyphicon glyphicon-cutlery"></span> Restaurant</a></li> {% endcomment %}
             <li><a href="{% url 'upload' %}"><span class="glyphicon glyphicon-cutlery"></span> Restaurant</a></li>
         </ul>
 
         <ul class="nav navbar-nav navbar-right">
             {% if request.user.is_authenticated %}
-                <li><a href="{% url 'profile' %}"><span class="glyphicon glyphicon-log-out"></span> Hello {{ request.user.username }}</a></li>
+                <li><a href="{% url 'profile' %}"><span class="glyphicon glyphicon-user"></span> Hello {{ request.user.username }}</a></li>
                 <li><a href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
             {% else %}
                 <li><a href="{% url 'signup' %}"><span class="glyphicon glyphicon-registration-mark"></span> Sign up</a></li>
@@ -34,10 +36,7 @@
         </ul>
     </div>
 </nav>
-
-<div class="container">
-    {% block content %}
-    {% endblock %}
-</div>
+{% block content %}
+{% endblock %}
 </body>
 </html>

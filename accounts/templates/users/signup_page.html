@@ -8,7 +8,6 @@
         <br />
         <div class="row kpx_row-sm-offset-3">
             <div class="col-xs-12 col-sm-6">
-                {% comment %} <form class="kpx_loginForm" id="SignupForm" action="{% url 'signup' %}" autocomplete="off" method="POST"> {% endcomment %}
                 <form class="kpx_loginForm" id="SignupForm" action="." autocomplete="off" method="POST">
                     {% csrf_token %}
                     {% bootstrap_form form %}

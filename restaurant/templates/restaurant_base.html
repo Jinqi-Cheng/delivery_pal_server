@@ -1,74 +1,34 @@
-{% load static %}
+{% extends "base.html" %}
 {% load bootstrap3 %}
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>{% block title %}{% endblock %}</title>
-    <link href="https://netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <link href="{% static "stylesheets/projectstyle.css" %}" rel="stylesheet">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    {% bootstrap_css %}
-    {% bootstrap_javascript %}
-    <link href="{% static 'django_tables2/bootstrap.css' %}" rel="stylesheet" />
-</head>
-<body>
-
-<div>
-    <nav class="navbar navbar-default">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                <span class="navbar-brand">Delivery Pal</span>
-            </div>
-            <ul class="nav navbar-nav navbar-left">
-                <li><a href="/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
-                <li><a href="{% url 'upload' %}"><span class="glyphicon glyphicon-cutlery"></span> Restaurant</a></li>
-            </ul>
-
-            <ul class="nav navbar-nav navbar-right">
-                {% if request.user.is_authenticated %}
-                    {% comment %} <li><a href="{% url 'profile' %}"><span class="glyphicon glyphicon-log-out"></span> Hello {{ restaurant.name }}</a></li> {% endcomment %}
-                    <li><a href="{% url 'profile' %}"><span class="glyphicon glyphicon-log-out"></span> Hello {{ request.user.username }}</a></li>
-                    <li><a href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
-                {% endif %}
-            </ul>
-        </div>
-    </nav>
-
-</div>
-
-{#<div class="wrapper">#}
+{% block content %}
     <div class="container-fluid">
-    <div class="row">
-
-    <!-- Sidebar -->
-    <nav id="sidebar" class="col-md-2">
-        <ul class="nav nav-pills nav-stacked" style="text-align: center">
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'upload' %}">上传文件</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'driverManager' %}">骑手管理</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'order_history' %}">历史订单</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'printable_routes' %}">打印路线</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'order_for_kitchen' %}">订单分拣</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'contact_us' %}">联系我们</a>
-            </li>
-        </ul>
-    </nav>
-    <!-- Page Content -->
-    <div class="col-md-8">
-        {% block content %}
-        {% endblock %}
+        <!-- Sidebar -->
+        <nav id="sidebar" class="col-md-2">
+            <ul class="nav nav-pills nav-stacked" style="text-align: center">
+                <li class="nav-item" style="width:150px">
+                    <a class="nav-link" href="{% url 'upload' %}">上传文件</a>
+                </li>
+                <li class="nav-item" style="width:150px">
+                    <a class="nav-link" href="{% url 'driverManager' %}">骑手管理</a>
+                </li>
+                <li class="nav-item" style="width:150px">
+                    <a class="nav-link" href="{% url 'order_history' %}">历史订单</a>
+                </li>
+                <li class="nav-item" style="width:150px">
+                    <a class="nav-link" href="{% url 'printable_routes' %}">打印路线</a>
+                </li>
+                <li class="nav-item" style="width:150px">
+                    <a class="nav-link" href="{% url 'order_for_kitchen' %}">订单分拣</a>
+                </li>
+                <li class="nav-item" style="width:150px">
+                    <a class="nav-link" href="{% url 'contact_us' %}">联系我们</a>
+                </li>
+            </ul>
+        </nav>
+        <!-- Page Content -->
+        <div id='funcContent' class="col-md-10">
+            {% block content_restaurant %}
+            {% endblock %}
+        </div>
     </div>
-    </div>
-{#    </div>#}
-</div>
+{% endblock %}

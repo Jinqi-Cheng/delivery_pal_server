@@ -3,10 +3,6 @@ from django.contrib.auth.models import User
 # from django.db import models
 import re
 
-# class LoginForm(forms.Form):
-#     username = forms.CharField()
-#     password = forms.CharField(widget=forms.PasswordInput)
-
 def email_check(email):
     pattern = re.compile(r"\"?([-a-zA-Z0-9.'?{}]+@\w+\.\w+)\"?")
     return re.match(pattern, email)

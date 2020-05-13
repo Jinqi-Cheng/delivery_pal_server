@@ -12,10 +12,6 @@ def homePage(request):
     return render(request, 'homepage.html')
 
 @login_required
-def upload(request):
-    return redirect('restaurant/upload.html')
-
-@login_required
 def profile(request):
     user = request.user
     if user.is_authenticated:
@@ -23,11 +19,9 @@ def profile(request):
             return redirect('/admin/')
         else:
             restaurant = Restaurant.objects.get(user_id = user.id)
-            return render(request, 'profile.html', {'restaurant': restaurant})
+            return render(request, 'users/profile.html', {'restaurant': restaurant})
     else:
         return redirect('/accounts/login/',{'message':'Wrong password Please Try agagin'})
-
-from django.contrib.auth.models import User
 
 def signup(request):
     if request.method == 'POST':
@@ -48,4 +42,4 @@ def signup(request):
             return render(request, 'signup/signup_page.html', {'form': form, 'successful_submit':True})
     else:
         form = SignUpForm()
-    return render(request, 'signup/signup_page.html', {'form': form})
+    return render(request, 'users/signup_page.html', {'form': form})

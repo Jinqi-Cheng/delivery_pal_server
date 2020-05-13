@@ -25,10 +25,14 @@ from collections import defaultdict
 def upload(request):
     if request.user.is_superuser:
         return redirect('/admin/')
+    else:
+        restaurant = Restaurant.objects.get(user_id = request.user.id)
+        if not restaurant.isActive:
+            return render(request, 'users/profile.html', {'restaurant': restaurant})
+
     if request.method == 'POST':
         uploadSel_form = uploadForm(request.user.id, request.POST, request.FILES)
         if uploadSel_form.is_valid():
-            # print(uploadSel_form.cleaned_data)
             pdf_file = uploadSel_form.cleaned_data['file']
             fs = FileSystemStorage()
             filename = fs.save(pdf_file.name, pdf_file)
@@ -50,7 +54,6 @@ def upload(request):
         uploadSel_form = uploadForm(request.user.id)
     restaurant = Restaurant.objects.get(user_id = request.user.id)
     return render(request, 'upload.html',{'restaurant':restaurant,'uploadSel_form':uploadSel_form})
-    # return render(request, 'home_upload.html',{'restaurant':restaurant,'uploadSel_form':uploadSel_form})
 
 def processOrder(uploaded_file_loc, restaurant, driver_list, is_lunch):
     today = date.today()
