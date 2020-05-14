@@ -1,5 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
+from .models import Restaurant
+
 # from django.db import models
 import re
 
@@ -62,4 +64,23 @@ class SignUpForm(forms.Form):
             raise forms.ValidationError('Password mismatch Please enter again')
 
         return password2
+
+class ProfileForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs): 
+        super(ProfileForm, self).__init__(*args, **kwargs)                       
+        # self.fields['driverCode'].widget=forms.HiddenInput()
+        # self.fields['idRestaurant'].widget=forms.HiddenInput()
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name','email']
+
+class RestaurantForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs): 
+        super(RestaurantForm, self).__init__(*args, **kwargs)                       
+
+    class Meta:
+        model = Restaurant
+        fields = ['name']
+
 
