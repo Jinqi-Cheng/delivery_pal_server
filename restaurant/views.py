@@ -263,3 +263,47 @@ def driver_item_list(request):
     for name,orders in driver_dic.items():
         driver_item[name] += [(key,value) for key,value in orders.items()]
     return render(request, "driver_item_list.html", {'restaurant': restaurant, 'drivers': driver_item.items()})
+
+@login_required
+def printable_driver_sequence(request):
+    restaurant = Restaurant.objects.get(user_id=request.user.id)
+    datetime = Orders.objects.filter(idRestaurant_id=restaurant).all().aggregate(Max("OrderDate"))
+    orders = Orders.objects.filter(idRestaurant_id=restaurant,
+                                   OrderDate=datetime['OrderDate__max']).values("DriverId__driverCode",
+                                                                                "DriverId__driverName",
+                                                                                "idDisplay",
+                                                                                "Address",
+                                                                                "Phone",
+                                                                                "Note",
+                                                                                "isPickup",
+                                                                                "Meals").order_by("Sequence")
+    driver_dic = defaultdict(list)
+    error_dic = defaultdict(list)
+    pickup_dic = defaultdict(list)
+    meal2str = lambda meals: [key + " X " + value for key, value in meals.items()]
+    for order in orders:
+        if not order["DriverId__driverCode"]:
+            if order["isPickup"]:
+                pickup_dic[("自提:", order['Address'])] \
+                    .append({'idDisplay': order['idDisplay'],
+                             'Address': order['Address'],
+                             'Phone': order['Phone'],
+                             'Note': order['Note'],
+                             'Meals': meal2str(order['Meals'])})
+            else:
+                error_dic[("错误订单", "")] \
+                    .append({'idDisplay': order['idDisplay'],
+                             'Address': order['Address'],
+                             'Phone': order['Phone'],
+                             'Note': order['Note'],
+                             'Meals': meal2str(order['Meals'])})
+        else:
+            driver_dic[(order["DriverId__driverName"], order["DriverId__driverCode"])] \
+                .append({'idDisplay': order['idDisplay'],
+                         'Address': order['Address'],
+                         'Phone': order['Phone'],
+                         'Note': order['Note'],
+                         'Meals': meal2str(order['Meals'])})
+    return render(request, "printable_driver_sequence.html",
+                  {'restaurant': restaurant, 'drivers': driver_dic.items(), 'error': error_dic.items(),
+                   'pickup': pickup_dic.items()})

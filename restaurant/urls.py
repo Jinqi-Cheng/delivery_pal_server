@@ -13,5 +13,6 @@ urlpatterns = [
     path("order_history/", views.orderHistoryWithFilter.as_view(), name="order_history"),
     path('contact_us/',views.contact_us,name='contact_us'),
     path('printable_routes',views.printable_routes,name='printable_routes'),
-    path('driver_item_list/',views.driver_item_list,name='driver_item_list')
+    path('driver_item_list/',views.driver_item_list,name='driver_item_list'),
+    path('printable_driver_sequence/',views.printable_driver_sequence,name='printable_driver_sequence')
 ]
