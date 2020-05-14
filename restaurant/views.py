@@ -53,7 +53,7 @@ def upload(request):
     else:
         uploadSel_form = uploadForm(request.user.id)
     restaurant = Restaurant.objects.get(user_id = request.user.id)
-    return render(request, 'upload.html',{'restaurant':restaurant,'uploadSel_form':uploadSel_form})
+    return render(request, 'upload/upload.html',{'restaurant':restaurant,'uploadSel_form':uploadSel_form})
 
 def processOrder(uploaded_file_loc, restaurant, driver_list, is_lunch):
     today = date.today()
@@ -71,19 +71,31 @@ def processOrder(uploaded_file_loc, restaurant, driver_list, is_lunch):
     print('generate_sequence Done')
 
 def uploadDone(request):
-    return render(request, 'upload_done.html')
+    return render(request, 'upload/upload_done.html')
 
 @login_required
 def order_for_kitchen(request):
     if request.user.is_superuser:
         return redirect('/admin/')
-    restaurant = Restaurant.objects.get(user_id=request.user.id)
+    else:
+        restaurant = Restaurant.objects.get(user_id = request.user.id)
+        if not restaurant.isActive:
+            return render(request, 'users/profile.html', {'restaurant': restaurant})
+
     datetime = Orders.objects.filter(idRestaurant_id=restaurant).all().aggregate(Max("OrderDate"))
     dic = Order.parser_meals(restaurant.idRestaurant,datetime['OrderDate__max'])
     dic = {key:(value,len(value)) for key,value in dic.items()}
     return render(request,'order_for_kitchen.html',{'restaurant': restaurant, 'orders':dic.items()})
 
+@login_required
 def get_order_sequence(request):
+    if request.user.is_superuser:
+        return redirect('/admin/')
+    else:
+        restaurant = Restaurant.objects.get(user_id = request.user.id)
+        if not restaurant.isActive:
+            return render(request, 'users/profile.html', {'restaurant': restaurant})
+
     driver_id = request.GET.get('driver_id')
     date = request.GET.get('date')
     lst = Order.generate_deliver_list(driver_id,date)
@@ -91,6 +103,13 @@ def get_order_sequence(request):
 
 @login_required
 def driverManager(request):
+    if request.user.is_superuser:
+        return redirect('/admin/')
+    else:
+        restaurant = Restaurant.objects.get(user_id = request.user.id)
+        if not restaurant.isActive:
+            return render(request, 'users/profile.html', {'restaurant': restaurant})
+
     if request.method == 'POST':
         driver_form = DriverForm(request.POST)
         if driver_form.is_valid():
@@ -100,10 +119,6 @@ def driverManager(request):
             restaurant = Restaurant.objects.get(user_id = request.user.id)
             restaurant.driverNumber = F('driverNumber') + 1
             restaurant.save()
-            # print('New Name:', new_driver.driverName)
-            # print('New Code:', new_driver.driverCode)
-            # print('New ID:', new_driver.idDriver)
-            # redirect('restaurant/driverManager')
         else:
             print('Fail')
     else:
@@ -112,8 +127,7 @@ def driverManager(request):
     drivers = Drivers.objects.filter(idRestaurant=restaurant)
 
     driver_form = DriverForm(initial={'idRestaurant': restaurant,'driverCode':genDriverCode(restaurant)})
-    # driver_form = DriverForm(initial={'idRestaurant': restaurant,'driverCode':genDriverCode(request.user.id, drivers)})
-    return render(request, 'driverManager.html',{'restaurant': restaurant, 'drivers':drivers, 'driver_form':driver_form})
+    return render(request, 'driver/driverManager.html',{'restaurant': restaurant, 'drivers':drivers, 'driver_form':driver_form})
 
 def genDriverCode(restaurant):
     alphabet='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -137,14 +151,20 @@ def genDriverCode(restaurant):
 
 @login_required
 def driverDelete(request, id):
+    if request.user.is_superuser:
+        return redirect('/admin/')
+    else:
+        restaurant = Restaurant.objects.get(user_id = request.user.id)
+        if not restaurant.isActive:
+            return render(request, 'users/profile.html', {'restaurant': restaurant})
+
     driver = Drivers.objects.get(idDriver=id)
     if request.method == "POST":
         if driver:
             driver.delete()
         return redirect('../../')
-    return render(request, "driverDelete.html", {"driver": driver})
+    return render(request, "driver/driverDelete.html", {"driver": driver})
 
-# @login_required
 class orderHistoryWithFilter(SingleTableMixin, FilterView):
     table_class = OrderTable
     model = Orders
@@ -184,7 +204,14 @@ def contact_us(request):
 
 @login_required
 def printable_routes(request):
-    restaurant = Restaurant.objects.get(user_id=request.user.id)
+    if request.user.is_superuser:
+        return redirect('/admin/')
+    else:
+        restaurant = Restaurant.objects.get(user_id = request.user.id)
+        if not restaurant.isActive:
+            return render(request, 'users/profile.html', {'restaurant': restaurant})
+            
+    # restaurant = Restaurant.objects.get(user_id=request.user.id)
     datetime = Orders.objects.filter(idRestaurant_id=restaurant).all().aggregate(Max("OrderDate"))
     orders = Orders.objects.filter(idRestaurant_id=restaurant,
                                    OrderDate=datetime['OrderDate__max']).values("DriverId__driverCode",

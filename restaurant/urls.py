@@ -2,6 +2,7 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 
 from restaurant import views
+from django.contrib.auth.decorators import login_required
 
 urlpatterns = [
     path('upload/', views.upload, name='upload'),
@@ -10,7 +11,7 @@ urlpatterns = [
     path('driverManager/', views.driverManager, name='driverManager'),
     path('driverManager/<int:id>/delete/', views.driverDelete, name='drivers-delete'),
     path('upload/upload_done/', views.uploadDone, name='uploadDone'),
-    path("order_history/", views.orderHistoryWithFilter.as_view(), name="order_history"),
+    path("order_history/", login_required(views.orderHistoryWithFilter.as_view()), name="order_history"),
     path('contact_us/',views.contact_us,name='contact_us'),
     path('printable_routes',views.printable_routes,name='printable_routes')
 ]
