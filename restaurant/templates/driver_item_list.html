@@ -1,9 +1,9 @@
 {% extends "restaurant_base.html" %}
 {% block title %}司机货单{% endblock %}
 {% block content %}
-    <div class="row">
+    <div class="row" style="display: flex !important">
         <div class="col-xs-12">
-            <h3>司机货单</h3>
+            <h3 class="hidden-print">司机货单</h3>
             {% for name,orders in drivers %}
                 <span>{{ name.0 }} {{ name.1 }}</span>
             <table class="table table-bordered table-hover table-striped" style="page-break-after: always;">
