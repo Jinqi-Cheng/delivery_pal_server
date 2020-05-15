@@ -3,10 +3,11 @@
 {% load django_tables2 %}
 {% load bootstrap3 %}
 {% block title %}Order History{% endblock %}
-{% block content %}
-    <div class="container">
+{% block content_restaurant %}
+    {% comment %} <div id="orderHistory" class="container"> {% endcomment %}
+    <div id="orderHistory">
         {% block body %}
-        <div class="row">
+        <div>
             <div>
                 <h3>Orders Checklist</h3>
                 {% if filter %}
@@ -16,12 +17,12 @@
                         {% bootstrap_button 'filter' %}
                     </form>
                 {% endif %}
+                <hr style="margin:10px,10px,5px,5px;"/>
+                <h4>Current Total:      ${{amount}}</h3>
+                {% comment %} <h3 style="text-align:left;"> Commission(0.04&#37;): ${{commission}} {% endcomment %}
                 <div>
                     {% render_table table %}
                 </div>
-                <hr style="margin:10px,10px,10px,10px;"/>
-                <h3 style="text-align:left;"> Total:      ${{amount}}
-                {% comment %} <h3 style="text-align:left;"> Commission(0.04&#37;): ${{commission}} {% endcomment %}
             </div>
         </div>
         {% endblock %}

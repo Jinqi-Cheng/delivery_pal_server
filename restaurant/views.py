@@ -17,30 +17,34 @@ from django_tables2.views import SingleTableMixin
 from datetime import date
 import threading
 import decimal
-
 from collections import defaultdict
+
+from .MAP_Func import MAP_Func
+
 # Create your views here.
 
 @login_required
-def dashboard(request):
+def upload(request):
     if request.user.is_superuser:
         return redirect('/admin/')
+    else:
+        restaurant = Restaurant.objects.get(user_id = request.user.id)
+        if not restaurant.isActive:
+            return render(request, 'users/profile.html', {'restaurant': restaurant})
+
     if request.method == 'POST':
         uploadSel_form = uploadForm(request.user.id, request.POST, request.FILES)
         if uploadSel_form.is_valid():
-            # print(uploadSel_form.cleaned_data)
             pdf_file = uploadSel_form.cleaned_data['file']
             fs = FileSystemStorage()
             filename = fs.save(pdf_file.name, pdf_file)
             uploaded_file_loc = "{0}/{1}".format(fs.location, filename)
-            # print('URL : ', uploaded_file_loc)
 
             # today = date.today()
             is_lunch = True if uploadSel_form.cleaned_data['Period']=='opt1' else False
             drivers = uploadSel_form.cleaned_data['drivers']
             driver_list = [ele.idDriver for ele in drivers]
             restaurant = Restaurant.objects.get(user_id = request.user.id)
-            # print(driver_list)
 
             today = date.today()
             precess_data = threading.Thread(target=processOrder, args=[uploaded_file_loc,restaurant,driver_list,is_lunch])
@@ -51,7 +55,7 @@ def dashboard(request):
     else:
         uploadSel_form = uploadForm(request.user.id)
     restaurant = Restaurant.objects.get(user_id = request.user.id)
-    return render(request, 'home_upload.html',{'restaurant':restaurant,'uploadSel_form':uploadSel_form})
+    return render(request, 'upload/upload.html',{'restaurant':restaurant,'uploadSel_form':uploadSel_form})
 
 def processOrder(uploaded_file_loc, restaurant, driver_list, is_lunch):
     today = date.today()
@@ -69,25 +73,45 @@ def processOrder(uploaded_file_loc, restaurant, driver_list, is_lunch):
     print('generate_sequence Done')
 
 def uploadDone(request):
-    return render(request, 'upload_done.html')
+    return render(request, 'upload/upload_done.html')
 
 @login_required
 def order_for_kitchen(request):
     if request.user.is_superuser:
         return redirect('/admin/')
-    restaurant = Restaurant.objects.get(user_id=request.user.id)
+    else:
+        restaurant = Restaurant.objects.get(user_id = request.user.id)
+        if not restaurant.isActive:
+            return render(request, 'users/profile.html', {'restaurant': restaurant})
+
     datetime = Orders.objects.filter(idRestaurant_id=restaurant).all().aggregate(Max("OrderDate"))
     dic = Order.parser_meals(restaurant.idRestaurant,datetime['OrderDate__max'])
     dic = {key:(value,len(value)) for key,value in dic.items()}
     return render(request,'order_for_kitchen.html',{'restaurant': restaurant, 'orders':dic.items()})
 
+@login_required
 def get_order_sequence(request):
+    if request.user.is_superuser:
+        return redirect('/admin/')
+    else:
+        restaurant = Restaurant.objects.get(user_id = request.user.id)
+        if not restaurant.isActive:
+            return render(request, 'users/profile.html', {'restaurant': restaurant})
+
     driver_id = request.GET.get('driver_id')
     date = request.GET.get('date')
     lst = Order.generate_deliver_list(driver_id,date)
     return JsonResponse(lst,safe=False)
 
+@login_required
 def driverManager(request):
+    if request.user.is_superuser:
+        return redirect('/admin/')
+    else:
+        restaurant = Restaurant.objects.get(user_id = request.user.id)
+        if not restaurant.isActive:
+            return render(request, 'users/profile.html', {'restaurant': restaurant})
+
     if request.method == 'POST':
         driver_form = DriverForm(request.POST)
         if driver_form.is_valid():
@@ -97,20 +121,43 @@ def driverManager(request):
             restaurant = Restaurant.objects.get(user_id = request.user.id)
             restaurant.driverNumber = F('driverNumber') + 1
             restaurant.save()
-            # print('New Name:', new_driver.driverName)
-            # print('New Code:', new_driver.driverCode)
-            # print('New ID:', new_driver.idDriver)
-            # redirect('restaurant/driverManager')
         else:
             print('Fail')
     else:
         driver_form = DriverForm()
     restaurant = Restaurant.objects.get(user_id = request.user.id)
     drivers = Drivers.objects.filter(idRestaurant=restaurant)
-
     driver_form = DriverForm(initial={'idRestaurant': restaurant,'driverCode':genDriverCode(restaurant)})
-    # driver_form = DriverForm(initial={'idRestaurant': restaurant,'driverCode':genDriverCode(request.user.id, drivers)})
-    return render(request, 'driverManager.html',{'restaurant': restaurant, 'drivers':drivers, 'driver_form':driver_form})
+
+    # #Partial code for Test
+    # addr1 = MAP_Func.saveAddress("first address", 100,32)
+    # addr2 = MAP_Func.saveAddress("Second address", 101,30)
+    # addr3 = MAP_Func.saveAddress("third address", 99.9999,32.00001)
+    # addr4 = MAP_Func.saveAddress("fourth address", 110.00025,32)
+    # addr5 = MAP_Func.saveAddress("fifth address", 110,32)
+    # coor1 = MAP_Func.findAndSaveNearPoint(addr1,max_radius=150)
+    # coor2 = MAP_Func.findAndSaveNearPoint(addr2,max_radius=150)
+    # coor3 = MAP_Func.findAndSaveNearPoint(addr3,max_radius=150)
+    # coor4 = MAP_Func.findAndSaveNearPoint(addr4,max_radius=150)
+    # coor5 = MAP_Func.findAndSaveNearPoint(addr5,max_radius=150)
+    # print('Address 1: ')
+    # print('Address 1: ', addr1)
+    # print('Coor 1: ', coor1)
+    # print('Address 2: ')
+    # print('Address 2: ', addr2)
+    # print('Coor 2: ', coor2)
+    # print('Address 3: ')
+    # print('Address 3: ', addr3)
+    # print('Coor 3: ', coor3)
+    # print('Address 4: ')
+    # print('Address 4: ', addr4)
+    # print('Coor 4: ', coor4)
+    # print('Address 5: ')
+    # print('Address 5: ', addr5)
+    # print('Coor 5: ', coor5)
+    # #End Partial code for Test
+
+    return render(request, 'driver/driverManager.html',{'restaurant': restaurant, 'drivers':drivers, 'driver_form':driver_form})
 
 def genDriverCode(restaurant):
     alphabet='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -132,17 +179,22 @@ def genDriverCode(restaurant):
 
     return rest_code+num_code
 
-
 @login_required
 def driverDelete(request, id):
+    if request.user.is_superuser:
+        return redirect('/admin/')
+    else:
+        restaurant = Restaurant.objects.get(user_id = request.user.id)
+        if not restaurant.isActive:
+            return render(request, 'users/profile.html', {'restaurant': restaurant})
+
     driver = Drivers.objects.get(idDriver=id)
     if request.method == "POST":
         if driver:
             driver.delete()
         return redirect('../../')
-    return render(request, "driverDelete.html", {"driver": driver})
+    return render(request, "driver/driverDelete.html", {"driver": driver})
 
-# @login_required
 class orderHistoryWithFilter(SingleTableMixin, FilterView):
     table_class = OrderTable
     model = Orders
@@ -159,6 +211,9 @@ class orderHistoryWithFilter(SingleTableMixin, FilterView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs) # get the default context data
+        restaurant = Restaurant.objects.get(user_id = self.request.user.id)
+        context['restaurant'] = restaurant
+
         query = self.filterset.qs
         if not query:
             context['commission'] = 0
@@ -179,7 +234,14 @@ def contact_us(request):
 
 @login_required
 def printable_routes(request):
-    restaurant = Restaurant.objects.get(user_id=request.user.id)
+    if request.user.is_superuser:
+        return redirect('/admin/')
+    else:
+        restaurant = Restaurant.objects.get(user_id = request.user.id)
+        if not restaurant.isActive:
+            return render(request, 'users/profile.html', {'restaurant': restaurant})
+            
+    # restaurant = Restaurant.objects.get(user_id=request.user.id)
     datetime = Orders.objects.filter(idRestaurant_id=restaurant).all().aggregate(Max("OrderDate"))
     orders = Orders.objects.filter(idRestaurant_id=restaurant,
                                    OrderDate=datetime['OrderDate__max']).values("DriverId__driverCode",

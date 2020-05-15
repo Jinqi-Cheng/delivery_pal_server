@@ -14,36 +14,44 @@ class OrderTable(tables.Table):
     Receiver_Name = tables.Column(accessor='ReceiverName', verbose_name='Receiver',orderable = True)
     Meals = tables.Column(accessor='Meals')
     Drive_Id = tables.Column(accessor='DriverId__driverName',verbose_name='Driver', orderable = True)
-    OrderDate = tables.Column(verbose_name='Date')
+    OrderDate = tables.Column(verbose_name='Date', attrs={"td": {"width": "100px"}})
     Address = tables.Column(accessor='Address')
     Sequence = tables.Column(accessor='Sequence')
     Phone = tables.Column(accessor='Phone')
-    Note = tables.Column(accessor='Note')
+    Note = tables.Column(accessor='Note', attrs={"td": {"width": "100px"}})
 
     def render_Price(self, value):
         return "${}".format(decimal.Decimal(value).normalize())
     
     class Meta:
         template_name = "django_tables2/semantic.html"
+        attrs = {"border": "1px solid"}
+
+# from django.utils.datastructures import MultiValueDict
+from django.http import QueryDict
+# from datetime import time
+from datetime import datetime, timedelta
 
 class OrderFilter(django_filters.FilterSet):
     # Price__gt = django_filters.NumberFilter(field_name='Price', lookup_expr='gt')
     # Price__lt = django_filters.NumberFilter(field_name='Price', lookup_expr='lt')
-    start = django_filters.DateFromToRangeFilter(field_name="OrderDate",
+    datefilter = django_filters.DateFromToRangeFilter(field_name="OrderDate",
         widget=RangeWidget(attrs={'placeholder': 'MM/DD/YYYY', 'type': 'date', 'class': 'datepicker'}),
         )
 
-    # def __init__(self, queryset=None, *args, **kwargs): 
     def __init__(self, *args, **kwargs):
-        # print('DISTINCT : : ',kwargs['queryset'].values_list('DriverId').distinct())
-        # unique_id = kwargs['queryset'].values_list('DriverId').distinct()
-        # self.base_filters['DriverId'] = django_filters.filters.ModelMultipleChoiceFilter(
-        #     to_field_name='DriverId',
-        #     queryset=Orders.objects.filter(DriverId=kwargs['queryset'].values_list('DriverId').distinct()),
-        # )
-        super().__init__(*args, **kwargs)                       
+        if kwargs['data'] is None:
+            filter_values = QueryDict(mutable=True)
+            today = datetime.today()
+            start = today - timedelta(days=today.weekday())
+            end = start + timedelta(days=6)
+            filter_values['datefilter_min']=start.strftime('%Y-%m-%d')
+            filter_values['datefilter_max']=end.strftime("%Y-%m-%d")
+            kwargs['data'] = filter_values
+
+        super().__init__(*args, **kwargs)
 
     class Meta:
         model = Orders
-        fields = ['start','DriverId__driverName']
-        # fields = ['Price__gt','Price__lt', 'Driver','start']
+        fields = ['datefilter','DriverId__driverName']
+        # fields = ['Price__gt','Price__lt', 'Driver','datefilter']

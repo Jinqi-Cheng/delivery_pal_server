@@ -1,7 +1,7 @@
 {% extends "restaurant_base.html" %}
 {% load bootstrap3 %}
 {% block title %}Driver Manager{% endblock %}
-{% block content %}
+{% block content_restaurant %}
 <div calss="col-sm-4">
     <h2>Driver Manager</h2>
     <h3 style="margin: 2px">Add New Driver</h3>
@@ -35,7 +35,7 @@
                     <td>{{driver.idDriver}}</td>
                     <td>{{driver.driverName}}</td>
                     <td>{{driver.driverCode}}</td>
-                    <td><a href="{% url 'drivers-delete' driver.idDriver %}" class="btn btn-info" role="button">Delete</a></td>
+                    <td><a href="{% url 'drivers-delete' driver.idDriver %}" class="btn btn-danger" role="button">Delete</a></td>
                 </tr>
             {% endfor %}
         </tbody>

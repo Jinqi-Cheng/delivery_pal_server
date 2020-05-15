@@ -94,7 +94,7 @@ DATABASES = {
         'PASSWORD': 'hsuan',
         'HOST': 'localhost',
         'PORT': '3306',
-    }
+    },
     # 'default': {
     #     'ENGINE': 'django.db.backends.mysql',
     #     'NAME': 'FoodDelivery',
@@ -104,7 +104,6 @@ DATABASES = {
     #     'PORT': '3306',
     # },
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -146,13 +145,6 @@ STATIC_URL = '/static/'
 # STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # # # Custom
-LOGIN_REDIRECT_URL = '/restaurant/dashboard/'
+LOGIN_REDIRECT_URL = '/restaurant/upload/'
 MEDIA_ROOT = os.path.join(BASE_DIR,'tempBin/')
-
-# DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap.html"
-# DJANGO_TABLES2_TEMPLATE = "django_tables2/semantic.html"
-# DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap4.html"
-# DJANGO_TABLES2_TEMPLATE = "django_tables2/table.html"
-# DJANGO_TABLES2_TEMPLATE = "django_tables2/bootstrap-responsive.html"
-
 
