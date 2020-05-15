@@ -35,17 +35,6 @@ class Orders(models.Model):
         db_table = "Orders"
         verbose_name = 'Order'
 
-class Address(models.Model):
-
-    idAddr = models.AutoField(primary_key=True)
-    address = models.CharField(max_length=1024)
-    longitude = models.DecimalField(max_digits=11, decimal_places=8)
-    latitude = models.DecimalField(max_digits=10, decimal_places=8)
-    idCoordinate = models.ForeignKey(Coordinate, on_delete=models.SET_NULL, null=True, to_field='idCoordinate')
-    
-    class Meta:
-        db_table = "Address"
-
 class Coordinate(models.Model):
 
     idCoordinate = models.AutoField(primary_key=True)
@@ -56,11 +45,26 @@ class Coordinate(models.Model):
         db_table = "Coordinate"
         # verbose_name = 'Coor'
 
+class Address(models.Model):
+
+    idAddr = models.AutoField(primary_key=True)
+    address = models.CharField(max_length=1024)
+    longitude = models.DecimalField(max_digits=11, decimal_places=8)
+    latitude = models.DecimalField(max_digits=10, decimal_places=8)
+    # idCoordinate = models.ForeignKey(Coordinate, on_delete=models.SET_NULL, null=True, to_field='idCoordinate')
+    idCoordinate = models.ForeignKey(Coordinate, on_delete=models.SET_NULL, default=None, null=True, to_field='idCoordinate')
+    
+    class Meta:
+        db_table = "Address"
+
 class Distance(models.Model):
 
     idDistance = models.AutoField(primary_key=True)
-    point_A = models.ForeignKey(Coordinate, on_delete=models.SET_NULL, null=True, to_field='idCoordinate')
-    point_B = models.ForeignKey(Coordinate, on_delete=models.SET_NULL, null=True, to_field='idCoordinate')
+    point_A = models.ForeignKey(Coordinate, on_delete=models.SET_NULL, null=True
+        , to_field='idCoordinate', related_name="pointA_2_coor")
+
+    point_B = models.ForeignKey(Coordinate, on_delete=models.SET_NULL, null=True
+        , to_field='idCoordinate', related_name="pointB_2_coor")
     distance = models.DecimalField(max_digits=8,decimal_places=3)
     class Meta:
         db_table = "Distance"

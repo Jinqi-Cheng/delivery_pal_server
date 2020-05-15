@@ -17,8 +17,10 @@ from django_tables2.views import SingleTableMixin
 from datetime import date
 import threading
 import decimal
-
 from collections import defaultdict
+
+from .MAP_Func import MAP_Func
+
 # Create your views here.
 
 @login_required
@@ -125,8 +127,36 @@ def driverManager(request):
         driver_form = DriverForm()
     restaurant = Restaurant.objects.get(user_id = request.user.id)
     drivers = Drivers.objects.filter(idRestaurant=restaurant)
-
     driver_form = DriverForm(initial={'idRestaurant': restaurant,'driverCode':genDriverCode(restaurant)})
+
+    # #Partial code for Test
+    # addr1 = MAP_Func.saveAddress("first address", 100,32)
+    # addr2 = MAP_Func.saveAddress("Second address", 101,30)
+    # addr3 = MAP_Func.saveAddress("third address", 99.9999,32.00001)
+    # addr4 = MAP_Func.saveAddress("fourth address", 110.00025,32)
+    # addr5 = MAP_Func.saveAddress("fifth address", 110,32)
+    # coor1 = MAP_Func.findAndSaveNearPoint(addr1,max_radius=150)
+    # coor2 = MAP_Func.findAndSaveNearPoint(addr2,max_radius=150)
+    # coor3 = MAP_Func.findAndSaveNearPoint(addr3,max_radius=150)
+    # coor4 = MAP_Func.findAndSaveNearPoint(addr4,max_radius=150)
+    # coor5 = MAP_Func.findAndSaveNearPoint(addr5,max_radius=150)
+    # print('Address 1: ')
+    # print('Address 1: ', addr1)
+    # print('Coor 1: ', coor1)
+    # print('Address 2: ')
+    # print('Address 2: ', addr2)
+    # print('Coor 2: ', coor2)
+    # print('Address 3: ')
+    # print('Address 3: ', addr3)
+    # print('Coor 3: ', coor3)
+    # print('Address 4: ')
+    # print('Address 4: ', addr4)
+    # print('Coor 4: ', coor4)
+    # print('Address 5: ')
+    # print('Address 5: ', addr5)
+    # print('Coor 5: ', coor5)
+    # #End Partial code for Test
+
     return render(request, 'driver/driverManager.html',{'restaurant': restaurant, 'drivers':drivers, 'driver_form':driver_form})
 
 def genDriverCode(restaurant):
