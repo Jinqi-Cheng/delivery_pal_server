@@ -1,0 +1,77 @@
+{% load static %}
+{% load bootstrap3 %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+{#    {% load staticfiles %}#}
+    <link rel="shortcut icon" href="{% static '/img/favicon.ico' %}">
+    <link href="https://netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="{% static "stylesheets/projectstyle.css" %}" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    <link href="{% static 'django_tables2/bootstrap.css' %}" rel="stylesheet" />
+</head>
+<body>
+
+<div>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="{% url 'dashboard' %}">Delivery Pal : {{ restaurant.name }}</a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                {% if request.user.is_authenticated %}
+                    <li><a href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'login' %}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+</div>
+
+{#<div class="wrapper">#}
+    <div class="container-fluid">
+    <div class="row">
+
+    <!-- Sidebar -->
+    <nav id="sidebar" class="col-md-2 hidden-print">
+        <ul class="nav nav-pills nav-stacked" style="text-align: center">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'dashboard' %}">上传文件</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'driverManager' %}">骑手管理</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'order_history' %}">历史订单</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'printable_routes' %}">打印路线</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'order_for_kitchen' %}">订单分拣</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'driver_item_list' %}">司机货单</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'printable_driver_sequence' %}">司机路线</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'contact_us' %}">联系我们</a>
+            </li>
+        </ul>
+    </nav>
+    <!-- Page Content -->
+    <div class="col-md-8">
+        {% block content %}
+        {% endblock %}
+    </div>
+    </div>
+{#    </div>#}
+</div>
