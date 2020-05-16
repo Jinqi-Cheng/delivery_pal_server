@@ -68,7 +68,7 @@ def signup(request):
             restaurant.save()
 
             form = SignUpForm()
-            return render(request, 'signup/signup_page.html', {'form': form, 'successful_submit':True})
+            return render(request, 'users/signup_page.html', {'form': form, 'successful_submit':True})
     else:
         form = SignUpForm()
     return render(request, 'users/signup_page.html', {'form': form})
