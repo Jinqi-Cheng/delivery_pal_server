@@ -1,0 +1,29 @@
+{% extends "restaurant_base.html" %}
+{% block title %}司机货单{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-xs-12">
+            <h3>Orders Checklist</h3>
+            {% for name,orders in drivers %}
+                <span>{{ name.0 }} {{ name.1 }}</span>
+            <table class="table table-bordered table-hover table-striped" style="page-break-after: always;">
+                <thead>
+                    <tr>
+                        <th>货品信息</th>
+                        <th>货品数量</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for meal,num in orders %}
+                    <tr>
+                        <td class="col-md-2">{{ meal }}</td>
+                        <td class="col-md-2">{{ num }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endfor %}
+
+        </div>
+    </div>
+{% endblock %}

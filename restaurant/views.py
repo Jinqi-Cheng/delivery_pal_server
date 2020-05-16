@@ -280,3 +280,46 @@ def printable_routes(request):
                          'Meals':meal2str(order['Meals'])})
     return render(request, "printable_routes.html",{'restaurant':restaurant,'drivers':driver_dic.items()})
 
+
+@login_required
+def orderHistory(request):
+    if request.user.is_superuser:
+        return redirect('/admin/')
+    restaurant = Restaurant.objects.get(user_id = request.user.id)
+    drivers = Drivers.objects.filter(idRestaurant=restaurant)
+    orders = []
+    for driver in drivers:
+        orders += Orders.objects.filter(DriverId=driver)
+    return render(request, 'order_history.html',{'restaurant': restaurant,'orders':orders})
+
+@login_required
+def driver_item_list(request):
+    restaurant = Restaurant.objects.get(user_id=request.user.id)
+    datetime = Orders.objects.filter(idRestaurant_id=restaurant).all().aggregate(Max("OrderDate"))
+    orders = Orders.objects.filter(idRestaurant_id=restaurant,
+                                   OrderDate=datetime['OrderDate__max']).values("DriverId__driverCode",
+                                                                                "DriverId__driverName",
+                                                                                "Address",
+                                                                                "isPickup",
+                                                                                "Meals").order_by("Sequence")
+    driver_dic = defaultdict(lambda: defaultdict(int))
+    # print(orders)
+    # meal2str = lambda meals: [key + " X " + value for key, value in meals.items()]
+    for order in orders:
+        if not order["DriverId__driverCode"]:
+            if order["isPickup"]:
+                for meal,num in order['Meals'].items():
+                    # print(meal,num)
+                    driver_dic[("自提:", order['Address'])][meal]+=int(num)
+            else:
+                for meal,num in order['Meals'].items():
+                    # print(meal, num)
+                    driver_dic[("错误订单", "")][meal]+=int(num)
+        else:
+            for meal, num in order['Meals'].items():
+                # print(meal, num)
+                driver_dic[(order["DriverId__driverName"], order["DriverId__driverCode"])][meal] += int(num)
+    driver_item = defaultdict(list)
+    for name,orders in driver_dic.items():
+        driver_item[name] += [(key,value) for key,value in orders.items()]
+    return render(request, "driver_item_list.html", {'restaurant': restaurant, 'drivers': driver_item.items()})

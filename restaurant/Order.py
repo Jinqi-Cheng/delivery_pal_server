@@ -81,8 +81,6 @@ class Order:
             df['现金支付金额'] = df['现金支付金额'].astype(float)
         if "备注" in df.columns:
             df["备注"] = df["备注"].astype(str)
-        print(df.dtypes)
-        print(df.备注)
         length = len(df)
         for row_index in range(length):
             row = df.iloc[row_index]
@@ -145,7 +143,8 @@ class Order:
                 'orderId':str(order['idDisplay']),
                 'address':order['Address'],
                 'phone':order['Phone'],
-                'note':order['Note'],
+                'note':order['Note']
+                   ,
                 'dishes':[meal+" X "+str(num) for meal,num in order['Meals'].items()]} for order in order_obj]
         # obj = Orders.objects.filter(idRestaurant=Restaurant.objects.get(idRestaurant=restaurant_id)
         #                             ,DriverId=driver_id,OrderDate=date).order_by("Sequence")
