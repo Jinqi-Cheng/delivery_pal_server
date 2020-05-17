@@ -30,8 +30,9 @@
                 <li><a href="{% url 'profile' %}"><span class="glyphicon glyphicon-user"></span> Hello {{ request.user.username }}</a></li>
                 <li><a href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
             {% else %}
-                <li><a href="{% url 'signup' %}"><span class="glyphicon glyphicon-registration-mark"></span> Sign up</a></li>
-                <li><a href="{% url 'login' %}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+                <li><a href="{% url 'driverLogin' %}"><span class="glyphicon glyphicon-log-in"></span> Driver Login</a></li>
+                <li><a href="{% url 'signup' %}"><span class="glyphicon glyphicon-registration-mark"></span> Restaurant Sign up</a></li>
+                <li><a href="{% url 'login' %}"><span class="glyphicon glyphicon-log-in"></span> Restaurant Login</a></li>
             {% endif %}
         </ul>
     </div>

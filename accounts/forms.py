@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from .models import Restaurant
+from restaurant.models import Drivers
 
 # from django.db import models
 import re
@@ -82,5 +83,30 @@ class RestaurantForm(forms.ModelForm):
     class Meta:
         model = Restaurant
         fields = ['name']
+
+class DriverLoginForm(forms.Form):
+    driverCode = forms.CharField(label='Driver Code', max_length=12)
+    password = forms.CharField(label='Password', widget=forms.PasswordInput)
+
+    # use clean methods to define custom validation rules
+    def clean_driverCode(self):
+        driverCode = self.cleaned_data.get('driverCode')
+        filter_result = Drivers.objects.filter(driverCode__exact=driverCode)
+        if not filter_result:
+            raise forms.ValidationError('This Driver Code does not exist. Please ask your manager.')
+        return driverCode
+
+class DriverEditForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs): 
+        super(DriverEditForm, self).__init__(*args, **kwargs)                       
+        print('Driver restaurant field : ', self.fields['idRestaurant'].widget)
+        self.fields['idRestaurant'].widget.attrs['disabled'] = 'disabled'
+        # self.fields['password'].widget.attrs['readonly'] = 'readonly'
+        self.fields['driverCode'].widget.attrs['readonly'] = 'readonly'
+
+    class Meta:
+        model = Drivers
+        fields = ['idRestaurant', 'driverCode','driverName', 'phone']
+        # fields = ['idRestaurant', 'driverCode','password','driverName', 'phone']
 
 

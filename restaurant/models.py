@@ -2,18 +2,38 @@ from django.db import models
 
 from accounts.models import Restaurant
 from django_mysql.models import JSONField
+from .driverModel import AbstractBaseDriver, DriverManager
 
 # Create your models here.
-class Drivers(models.Model):
+class Drivers(AbstractBaseDriver):
 
-    idDriver = models.AutoField(primary_key=True)
-    idRestaurant = models.ForeignKey(Restaurant, on_delete=models.SET_NULL,null=True, to_field='idRestaurant')
-    driverCode = models.CharField(max_length=12, unique=True, null=True)
-    driverName = models.CharField(max_length=64, null=True)
-    
+    idDriver = models.AutoField(primary_key=True, verbose_name='ID')
+    idRestaurant = models.ForeignKey(Restaurant, verbose_name='Restaurant', on_delete=models.SET_NULL,null=True, to_field='idRestaurant')
+    driverCode = models.CharField(max_length=12, verbose_name='Driver Code', unique=True, null=True)
+    driverName = models.CharField(max_length=64, verbose_name='Name', null=True)
+    phone = models.CharField(max_length=32, null=True)
+
+    USERNAME_FIELD = 'driverCode'
+    REQUIRED_FIELDS = ['driverCode']
+
+    objects = DriverManager()
+
     class Meta:
         db_table = "Drivers"
         verbose_name = 'Driver'
+
+    # function
+    def get_idDriver(self):
+        return self.idDriver
+
+    def get_driverName(self):
+        return self.driverName
+
+    def get_idRestaurant(self):
+        return self.idRestaurant
+    
+    def get_phone(self):
+        return self.phone
 
 class Orders(models.Model):
 

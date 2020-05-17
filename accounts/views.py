@@ -3,10 +3,13 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.models import User
 
+
 # Create your views here.
 
 from .models import Restaurant
-from .forms import SignUpForm, ProfileForm, RestaurantForm
+from .forms import SignUpForm, ProfileForm, RestaurantForm, DriverLoginForm, DriverEditForm
+from restaurant.models import Drivers
+# from restaurant.forms import DriverPWChangeForm
 
 def homePage(request):
     return render(request, 'homePage.html')
@@ -72,3 +75,35 @@ def signup(request):
     else:
         form = SignUpForm()
     return render(request, 'users/signup_page.html', {'form': form})
+
+def driverLogin(request):
+    if request.method == 'POST':
+        form = DriverLoginForm(request.POST)
+        if form.is_valid():
+            driverCode = form.cleaned_data['driverCode']
+            password = form.cleaned_data['password']
+            driver = Drivers.objects.get(driverCode=driverCode)
+            if driver.check_password(password):
+                return redirect('../{}/edit/'.format(driver.idDriver))
+                # return HttpResponseRedirect(reverse('users:profile', args=[user.id]))
+            else:
+                return render(request, 'driver_login.html', {'form': form, 'message':'Wrong password Please Try agagin'})
+    else:
+        form = DriverLoginForm()
+    return render(request, 'driver_login.html', {'form': form})
+
+def edit_DriverProfile(request, d_id):
+    if request.method == 'POST':
+        driver_form = DriverEditForm(request.POST)
+        if driver_form.is_valid():
+            driverName = driver_form.cleaned_data['driverName']
+            phone = driver_form.cleaned_data['phone']
+            driver = Drivers.objects.get(idDriver = d_id)
+            driver.objects.filter(idDriver = d_id).update(driverName=driverName, phone=phone)
+            # return redirect("../")
+    else:
+        instance = get_object_or_404(Drivers, idDriver=d_id)
+        driver_form = DriverEditForm(request.POST or None, instance=instance)
+    return render(request, 'driverEditForm.html', {'driver_form': driver_form})
+
+

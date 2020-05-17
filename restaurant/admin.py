@@ -12,6 +12,17 @@ class OrderAdmin(admin.ModelAdmin):
 admin.site.register(Orders, OrderAdmin)
 
 class DriverAdmin(admin.ModelAdmin):
-    list_display = ['idDriver','idRestaurant', 'driverCode','driverName']
+    # A template for a very customized change view:
+    change_form_template = 'driver/driverChangeForm.html'
+
+    list_display = ['idDriver','idRestaurant', 'driverCode','driverName', 'phone']
+    readonly_fields = ('idRestaurant', 'driverCode','password',)
+
+    # def change_view(self, request, object_id, form_url='', extra_context=None):
+    #     extra_context = extra_context or {}
+    #     extra_context['osm_data'] = self.get_osm_info()
+    #     return super().change_view(
+    #         request, object_id, form_url, extra_context=extra_context,
+    #     )
 
 admin.site.register(Drivers, DriverAdmin)

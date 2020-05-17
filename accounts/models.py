@@ -15,3 +15,8 @@ class Restaurant(models.Model):
     
     class Meta:
         db_table = 'Restaurant'
+    
+    def __str__(self):
+        return "%s" % self.name
+    def __unicode__(self):
+        return "%s" % self.name
