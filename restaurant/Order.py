@@ -141,7 +141,31 @@ class Order:
                                       Phone=fetch_phone_number(txt),
                                       Note=fetch_note(txt))
     @classmethod
-    def generate_deliver_list(cls,driver_id, date):
+    def generate_deliver_list(cls,driver_id, date, isError=False):
+        if isError:
+            error_order_obj = Orders.objects.filter(DriverId_id__isnull=True,
+                                                    isPickup=False,
+                                                    idRestaurant__drivers__driverCode=driver_id,
+                                                    OrderDate=date + " 18:00").values("ReceiverName", "idDisplay",
+                                                                                      "Address", "Phone", "Note",
+                                                                                      "Meals").order_by("Sequence")
+            if not len(error_order_obj):
+                error_order_obj = Orders.objects.filter(DriverId_id__isnull=True,
+                                                        isPickup=False,
+                                                        idRestaurant__drivers__driverCode=driver_id,
+                                                        OrderDate=date + " 12:00").values("ReceiverName", "idDisplay",
+                                                                                          "Address", "Phone", "Note",
+                                                                                          "Meals").order_by("Sequence")
+
+            # print(error_order_obj)
+            error_lst = [{'name': order["ReceiverName"],
+                          'orderId': str(order['idDisplay']),
+                          'address': order['Address'],
+                          'phone': order['Phone'],
+                          'note': order['Note'],
+                          'dishes': [meal + " X " + str(num) for meal, num in order['Meals'].items()]} for order in
+                         error_order_obj]
+            return error_lst
         order_obj = Orders.objects.filter(DriverId__driverCode=driver_id,
                                            OrderDate=date+" 18:00").values("ReceiverName","idDisplay","Address","Phone","Note","Meals").order_by("Sequence")
         if not len(order_obj):
@@ -157,6 +181,7 @@ class Order:
         # obj = Orders.objects.filter(idRestaurant=Restaurant.objects.get(idRestaurant=restaurant_id)
         #                             ,DriverId=driver_id,OrderDate=date).order_by("Sequence")
         # print(obj,type(obj))
+
         return lst
     @classmethod
     def parser_meals(cls, restaurant_id, date):
