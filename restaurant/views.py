@@ -84,7 +84,8 @@ def order_for_kitchen(request):
 def get_order_sequence(request):
     driver_id = request.GET.get('driver_id')
     date = request.GET.get('date')
-    lst = Order.generate_deliver_list(driver_id,date)
+    isError = request.GET.get('isError')
+    lst = Order.generate_deliver_list(driver_id,date,True if isError == '1' else False)
     return JsonResponse(lst,safe=False)
 
 def driverManager(request):
