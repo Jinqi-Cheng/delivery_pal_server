@@ -112,7 +112,9 @@ def driverManager(request):
         restaurant = Restaurant.objects.get(user_id = request.user.id)
         if not restaurant.isActive:
             return render(request, 'users/profile.html', {'restaurant': restaurant})
-
+    
+    successful_addDriver = False
+    password=None
     if request.method == 'POST':
         driver_form = AddDriverForm(request.POST)
         if driver_form.is_valid():
@@ -122,17 +124,25 @@ def driverManager(request):
             restaurant = Restaurant.objects.get(user_id = request.user.id)
             restaurant.driverNumber = F('driverNumber') + 1
             restaurant.save()
+            successful_addDriver = True
             driver_form = AddDriverForm()
         else:
             driver_form = AddDriverForm()
             print('Fail')
     else:
+        successful_addDriver = False
+        password=None
         driver_form = AddDriverForm()
+
     restaurant = Restaurant.objects.get(user_id = request.user.id)
     drivers = Drivers.objects.filter(idRestaurant=restaurant)
     driver_form = AddDriverForm(initial={'idRestaurant': restaurant,'driverCode':genDriverCode(restaurant)})
-
-    return render(request, 'driver/driverManager.html',{'restaurant': restaurant, 'drivers':drivers, 'driver_form':driver_form})
+    context={'restaurant': restaurant, 'drivers':drivers
+        , 'driver_form':driver_form
+        ,'successful_addDriver':successful_addDriver
+        ,'password':password
+        }
+    return render(request, 'driver/driverManager.html', context)
 
 def genDriverCode(restaurant):
     alphabet='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'

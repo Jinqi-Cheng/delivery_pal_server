@@ -79,22 +79,22 @@ WSGI_APPLICATION = 'FoodDelivery_Server.wsgi.application'
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.mysql',
-    #     'NAME': 'FoodDelivery1',
-    #     'USER': 'dell',
-    #     'PASSWORD': 'FoodDelivery1@',
-    #     'HOST': 'localhost',
-    #     'PORT': '3306',
-    # },
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'fooddelivery',
-        'USER': 'hsuan',
-        'PASSWORD': 'hsuan',
+        'NAME': 'FoodDelivery1',
+        'USER': 'dell',
+        'PASSWORD': 'FoodDelivery1@',
         'HOST': 'localhost',
         'PORT': '3306',
     },
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': 'fooddelivery',
+    #     'USER': 'hsuan',
+    #     'PASSWORD': 'hsuan',
+    #     'HOST': 'localhost',
+    #     'PORT': '3306',
+    # },
     # 'default': {
     #     'ENGINE': 'django.db.backends.mysql',
     #     'NAME': 'FoodDelivery',
@@ -149,6 +149,5 @@ LOGIN_REDIRECT_URL = '/restaurant/upload/'
 MEDIA_ROOT = os.path.join(BASE_DIR,'tempBin/')
 
 AUTHENTICATION_BACKENDS = [
-    # 'path_to.backends.EmailAuthBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]

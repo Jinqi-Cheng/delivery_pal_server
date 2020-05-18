@@ -9,19 +9,12 @@ from django.db import models
 from django.utils.crypto import get_random_string, salted_hmac
 from django.utils.translation import gettext_lazy as _
 
-
-# class BaseUserManager(models.Manager):
 class BaseDriverManager(models.Manager):
 
     def make_random_password(self, length=10,
                              allowed_chars='abcdefghjkmnpqrstuvwxyz'
                                            'ABCDEFGHJKLMNPQRSTUVWXYZ'
                                            '23456789'):
-        """
-        Generate a random password with the given length and given
-        allowed_chars. The default value of allowed_chars does not have "I" or
-        "O" or letters and digits that look similar -- just to avoid confusion.
-        """
         return get_random_string(length, allowed_chars)
 
     def get_by_natural_key(self, username):
@@ -32,7 +25,6 @@ class DriverManager(BaseDriverManager):
     def _create_driver(self, id, driverName, drivercode, **extra_fields):
         if not drivercode:
             raise ValueError('The given drivercode must be set')
-        # username = self.model.normalize_username(username)
         driver = self.model(idRestaurant = id, driverName=driverName, driverCode = drivercode, **extra_fields)
         password = self.make_random_password()
         driver.set_password(password)
@@ -41,14 +33,10 @@ class DriverManager(BaseDriverManager):
 
     def create_driver(self, id, driverName, driverCode, **extra_fields):
         return self._create_driver(id, driverName, driverCode, **extra_fields)
-    # def create_driver(self, username, **extra_fields):
-    #     return self._create_driver(username, **extra_fields)
 
-# class AbstractBaseUser(models.Model):
 class AbstractBaseDriver(models.Model):
     password = models.CharField(_('password'), max_length=128)
     # last_login = models.DateTimeField(_('last login'), blank=True, null=True)
-    # is_active = True
 
     REQUIRED_FIELDS = []
     USERNAME_FIELD = ['driverCode']
@@ -63,7 +51,9 @@ class AbstractBaseDriver(models.Model):
         return self.get_username()
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+        fields = kwargs.pop('update_fields', [])
+        if fields != ['last_login']:
+            super().save(*args, **kwargs)
         if self._password is not None:
             password_validation.password_changed(self._password, self)
             self._password = None
@@ -127,13 +117,7 @@ class AbstractBaseDriver(models.Model):
         key_salt = "django.contrib.auth.models.AbstractBaseUser.get_session_auth_hash"
         return salted_hmac(key_salt, self.password).hexdigest()
 
-    # @classmethod
-    # def get_email_field_name(cls):
-    #     try:
-    #         return cls.EMAIL_FIELD
-    #     except AttributeError:
-    #         return 'email'
-
     @classmethod
     def normalize_username(cls, username):
         return unicodedata.normalize('NFKC', username) if isinstance(username, str) else username
+

@@ -99,14 +99,8 @@ class DriverLoginForm(forms.Form):
 class DriverEditForm(forms.ModelForm):
     def __init__(self, *args, **kwargs): 
         super(DriverEditForm, self).__init__(*args, **kwargs)                       
-        print('Driver restaurant field : ', self.fields['idRestaurant'].widget)
-        self.fields['idRestaurant'].widget.attrs['disabled'] = 'disabled'
-        # self.fields['password'].widget.attrs['readonly'] = 'readonly'
-        self.fields['driverCode'].widget.attrs['readonly'] = 'readonly'
 
     class Meta:
         model = Drivers
-        fields = ['idRestaurant', 'driverCode','driverName', 'phone']
-        # fields = ['idRestaurant', 'driverCode','password','driverName', 'phone']
-
+        fields = ['driverName', 'phone']
 

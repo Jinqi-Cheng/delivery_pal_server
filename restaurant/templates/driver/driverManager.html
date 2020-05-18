@@ -46,6 +46,13 @@
     </table>
 </div>
 
+{% if successful_addDriver %}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $("#passwordModal").modal('show');
+        });
+    </script>
+{% endif %}
 <div id="passwordModal" class="modal fade" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -58,11 +65,13 @@
             </h3>
         </div>
         <div class="modal-body">
-            <h4 style="text-align:center">Password of the New driver is : </h4>
+            <h4 style="text-align:center">Password of the New driver:  <b>{{password}}</b> </h4>
         </div>
-        <div class="modal-footer" style="text-align:center">
-            <a href="../" class="btn btn-primary" role="button">OK</a>
-            {% comment %} <a href="{% url 'login' %}" class="btn btn-primary" role="button">Go to Login</a> {% endcomment %}
+        <div class="modal-footer" style="text-align:left">
+            {% comment %} <button type="button" class="close" data-dismiss="modal" aria-label="Close"> {% endcomment %}
+            <button type="button" class="btn btn-primary" data-dismiss="modal" aria-label="Close">
+                OK
+            </button>
         </div>
         </div>
     </div>

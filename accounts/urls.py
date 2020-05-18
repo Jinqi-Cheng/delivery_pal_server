@@ -4,6 +4,7 @@ from django.contrib.auth import views as auth_views
 from accounts import views
 from restaurant import views as rest_views
 
+
 urlpatterns = [
     path('', views.homePage, name='home'),
     path('login/', auth_views.LoginView.as_view( template_name='Restaurant_login.html'), name='login' ),
@@ -19,13 +20,7 @@ urlpatterns = [
         ),
         name='change_password'),
     path('driver/login/', views.driverLogin, name='driverLogin' ),
-    path('driver/<int:d_id>/edit/', views.edit_DriverProfile, name='driverEdit' ),
-    
-    # path('admin/restaurant/drivers/<int:id>/password', 
-    #     auth_views.PasswordChangeView.as_view
-    #     ( 
-    #         template_name='users/change_password.html',
-    #         success_url = '../' 
-    #     ),
-    #     name='change_driver_password'),
+    path('driver/edit/', views.edit_DriverProfile, name='driverEdit' ),
+    path('driver/edit/change-password/', views.PasswordChangeForDriver,name='PWChangeForDriver'), 
+
 ]
