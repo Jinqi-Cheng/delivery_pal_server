@@ -2,11 +2,17 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.models import User
+from django.urls import reverse
+from django.contrib import messages
+
 
 # Create your views here.
 
 from .models import Restaurant
-from .forms import SignUpForm, ProfileForm, RestaurantForm
+from .forms import SignUpForm, ProfileForm, RestaurantForm, DriverLoginForm, DriverEditForm
+from restaurant.models import Drivers
+from restaurant.forms import DriverPWChangeForm
+
 
 def homePage(request):
     return render(request, 'homePage.html')
@@ -61,14 +67,83 @@ def signup(request):
             email = form.cleaned_data['email']
             password = form.cleaned_data['password2']
             name = form.cleaned_data['name']
-            
+            agreed = form.cleaned_data['agreeTerm']
             user = User.objects.create_user(username=username, password=password, email=email)
-
-            restaurant = Restaurant(user=user, name = name)
+            restaurant = Restaurant(user=user, name = name, agreeTerm=agreed)
             restaurant.save()
 
             form = SignUpForm()
-            return render(request, 'signup/signup_page.html', {'form': form, 'successful_submit':True})
+            return render(request, 'users/signup_page.html', {'form': form, 'successful_submit':True})
     else:
         form = SignUpForm()
     return render(request, 'users/signup_page.html', {'form': form})
+
+def driverLogin(request):
+    request.session['idDriver'] = None
+    if request.method == 'POST':
+        form = DriverLoginForm(request.POST)
+        if form.is_valid():
+            driverCode = form.cleaned_data['driverCode']
+            password = form.cleaned_data['password']
+            driver = get_object_or_404(Drivers, driverCode=driverCode)
+            if driver.check_password(password) is True:
+                request.session['idDriver'] = driver.idDriver
+                return redirect(reverse('driverEdit'))
+            else:
+                request.session['idDriver'] = None
+                return render(request, 'driver_login.html', {'form': form, 'message':'Wrong password Please Try agagin'})
+    else:
+        form = DriverLoginForm()
+    return render(request, 'driver/driver_login.html', {'form': form})
+
+def edit_DriverProfile(request):
+    try:
+        id = request.session.get('idDriver')
+        if not id:
+            return redirect(reverse('driverLogin'))
+    except KeyError:
+        return redirect(reverse('driverLogin'))
+
+    if request.method == 'POST':
+        driver_form = DriverEditForm(request.POST)
+        driver = get_object_or_404(Drivers, idDriver=id)
+        if driver_form.is_valid():
+            driverName = driver_form.cleaned_data['driverName']
+            phone = driver_form.cleaned_data['phone']
+            Drivers.objects.filter(idDriver = id).update(driverName=driverName, phone=phone)
+            return render(request, 'driver/driverEditForm.html', {'driver_form': driver_form, 'driver': driver, 'message':'True'})
+        else:
+            print('Fail')
+    else:
+        driver = get_object_or_404(Drivers, idDriver=id)
+        driver_form = DriverEditForm(instance=driver)
+    return render(request, 'driver/driverEditForm.html', {'driver_form': driver_form, 'driver': driver})
+
+def PasswordChangeForDriver(request): 
+    try:
+        id = request.session.get('idDriver')
+        if not id:
+            return redirect(reverse('driverLogin'))
+    except KeyError:
+        return redirect(reverse('driverLogin'))
+
+    driver = Drivers.objects.get(idDriver=id)
+    if request.method == "POST":
+        form = DriverPWChangeForm(driver, request.POST)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('../')
+        else:
+            messages.error(request, 'Please correct the error below.')
+    else:
+        form = DriverPWChangeForm(driver)
+    return render(request, 'driver/ChangePassowrdForDriver.html', {'form': form})
+
+# Agreements
+def TermAndConditionPage(request):
+    return render(request, 'agreements/Terms_and_conditions.htm')
+def PrivacyPolicyPage(request):
+    return render(request, 'agreements/Privacy_policy.htm')
+def DisclaimerPage(request):
+    return render(request, 'agreements/Disclaimer.htm')

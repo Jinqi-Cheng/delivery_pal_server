@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "restaurant_base.html" %}
 {% load bootstrap3 %}
 {% block title %}Change Passowrd{% endblock %}
 {% block content %}
@@ -15,7 +15,8 @@
                 <form method="post">
                     {% csrf_token %}
                     {{ form.as_p }}
-                    <a class="btn btn-primary" href="{% url 'edit_profile' %}">Back</a>
+                    <a class="btn btn-primary" href="../">Back</a>
+                    {% comment %} <a class="btn btn-primary" href="{% url 'driverManager' %}">Back</a> {% endcomment %}
                     <button class="btn btn-primary" type="submit">Change Password</button>
                 </form>
             </div>
@@ -23,5 +24,7 @@
     </div> <!--- A col ---->
 </div> <!--- Container -->
 {% endblock %}
+
+
 
 

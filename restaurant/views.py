@@ -1,14 +1,14 @@
 from django.core.files.storage import FileSystemStorage
-from django.shortcuts import render
-from django.shortcuts import redirect
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.db.models import F, Max
+from django.contrib import messages
 
 from django.http import JsonResponse
 from .models import Orders, Drivers
 from accounts.models import Restaurant
 from .Order import Order
-from .forms import DriverForm, uploadForm
+from .forms import AddDriverForm, uploadForm, ForceDriverPWChangeForm
 from .tables import OrderTable,OrderFilter
 from django.db.models import Sum
 from django_filters.views import FilterView
@@ -31,6 +31,9 @@ def upload(request):
         restaurant = Restaurant.objects.get(user_id = request.user.id)
         if not restaurant.isActive:
             return render(request, 'users/profile.html', {'restaurant': restaurant})
+        if not restaurant.agreeTerm:
+            return redirect('agreementAccept')
+        
 
     if request.method == 'POST':
         uploadSel_form = uploadForm(request.user.id, request.POST, request.FILES)
@@ -111,53 +114,37 @@ def driverManager(request):
         restaurant = Restaurant.objects.get(user_id = request.user.id)
         if not restaurant.isActive:
             return render(request, 'users/profile.html', {'restaurant': restaurant})
-
+    
+    successful_addDriver = False
+    password=None
     if request.method == 'POST':
-        driver_form = DriverForm(request.POST)
+        driver_form = AddDriverForm(request.POST)
         if driver_form.is_valid():
             #Create a new driver
             new_driver = driver_form.save(commit=False)
-            driver_form.save()
+            driver, password = Drivers.objects.create_driver(id = new_driver.idRestaurant, driverName=new_driver.driverName, driverCode= new_driver.driverCode)
             restaurant = Restaurant.objects.get(user_id = request.user.id)
             restaurant.driverNumber = F('driverNumber') + 1
             restaurant.save()
+            successful_addDriver = True
+            driver_form = AddDriverForm()
         else:
+            driver_form = AddDriverForm()
             print('Fail')
     else:
-        driver_form = DriverForm()
+        successful_addDriver = False
+        password=None
+        driver_form = AddDriverForm()
+
     restaurant = Restaurant.objects.get(user_id = request.user.id)
     drivers = Drivers.objects.filter(idRestaurant=restaurant)
-    driver_form = DriverForm(initial={'idRestaurant': restaurant,'driverCode':genDriverCode(restaurant)})
-
-    # #Partial code for Test
-    # addr1 = MAP_Func.saveAddress("first address", 100,32)
-    # addr2 = MAP_Func.saveAddress("Second address", 101,30)
-    # addr3 = MAP_Func.saveAddress("third address", 99.9999,32.00001)
-    # addr4 = MAP_Func.saveAddress("fourth address", 110.00025,32)
-    # addr5 = MAP_Func.saveAddress("fifth address", 110,32)
-    # coor1 = MAP_Func.findAndSaveNearPoint(addr1,max_radius=150)
-    # coor2 = MAP_Func.findAndSaveNearPoint(addr2,max_radius=150)
-    # coor3 = MAP_Func.findAndSaveNearPoint(addr3,max_radius=150)
-    # coor4 = MAP_Func.findAndSaveNearPoint(addr4,max_radius=150)
-    # coor5 = MAP_Func.findAndSaveNearPoint(addr5,max_radius=150)
-    # print('Address 1: ')
-    # print('Address 1: ', addr1)
-    # print('Coor 1: ', coor1)
-    # print('Address 2: ')
-    # print('Address 2: ', addr2)
-    # print('Coor 2: ', coor2)
-    # print('Address 3: ')
-    # print('Address 3: ', addr3)
-    # print('Coor 3: ', coor3)
-    # print('Address 4: ')
-    # print('Address 4: ', addr4)
-    # print('Coor 4: ', coor4)
-    # print('Address 5: ')
-    # print('Address 5: ', addr5)
-    # print('Coor 5: ', coor5)
-    # #End Partial code for Test
-
-    return render(request, 'driver/driverManager.html',{'restaurant': restaurant, 'drivers':drivers, 'driver_form':driver_form})
+    driver_form = AddDriverForm(initial={'idRestaurant': restaurant,'driverCode':genDriverCode(restaurant)})
+    context={'restaurant': restaurant, 'drivers':drivers
+        , 'driver_form':driver_form
+        ,'successful_addDriver':successful_addDriver
+        ,'password':password
+        }
+    return render(request, 'driver/driverManager.html', context)
 
 def genDriverCode(restaurant):
     alphabet='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -194,6 +181,28 @@ def driverDelete(request, id):
             driver.delete()
         return redirect('../../')
     return render(request, "driver/driverDelete.html", {"driver": driver})
+
+@login_required
+def driverPasswordChangeView(request, id): 
+    if request.user.is_superuser:
+        return redirect('/admin/')
+    else:
+        restaurant = Restaurant.objects.get(user_id = request.user.id)
+        if not restaurant.isActive:
+            return render(request, 'users/profile.html', {'restaurant': restaurant})
+
+    driver = Drivers.objects.get(idDriver=id)
+    if request.method == "POST":
+        form = ForceDriverPWChangeForm(driver, request.POST)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('../../')
+        else:
+            messages.error(request, 'Please correct the error below.')
+    else:
+        form = ForceDriverPWChangeForm(driver)
+    return render(request, 'driver/driverChangePassowrd.html', {'form': form})
 
 class orderHistoryWithFilter(SingleTableMixin, FilterView):
     table_class = OrderTable
@@ -323,3 +332,22 @@ def driver_item_list(request):
     for name,orders in driver_dic.items():
         driver_item[name] += [(key,value) for key,value in orders.items()]
     return render(request, "driver_item_list.html", {'restaurant': restaurant, 'drivers': driver_item.items()})
+
+
+@login_required
+def agreementAccept(request):
+    if request.user.is_superuser:
+        return redirect('/admin/')
+    else:
+        restaurant = Restaurant.objects.get(user_id = request.user.id)
+        if not restaurant.isActive:
+            return render(request, 'users/profile.html', {'restaurant': restaurant})
+
+    if request.method == "POST":
+        Restaurant.objects.filter(user_id = request.user.id).update(agreeTerm=True)
+        return redirect('upload')
+    return render(request, "agreementCheck.html")
+
+
+
+

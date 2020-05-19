@@ -1,6 +1,9 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.utils.html import format_html, mark_safe
+
 from .models import Restaurant
+from restaurant.models import Drivers
 
 # from django.db import models
 import re
@@ -16,7 +19,13 @@ class SignUpForm(forms.Form):
     password1 = forms.CharField(label='Password*', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Password Confirmation', widget=forms.PasswordInput)
 
-    #user clean methods to define custom validation rules
+    agreeLabel = format_html("I have read and agree to {}, {}, and {} above"
+        ,mark_safe('<a href="../TermAndConditionPage" target="_blank">Terms and Conditions</a>')
+        ,mark_safe('<a href="../PrivacyPolicyPage" target="_blank">Privacy Policy</a>')
+        ,mark_safe('<a href="../DisclaimerPage" target="_blank">Disclaimer</a>')
+    )
+    agreeTerm = forms.BooleanField(label=agreeLabel, required=True)
+
     def clean_username(self):
         username = self.cleaned_data.get('username')
         if len(username) < 3:
@@ -65,6 +74,15 @@ class SignUpForm(forms.Form):
 
         return password2
 
+    def clean_agreeTerm(self):
+        agree = self.cleaned_data.get('agreeTerm')
+        if agree:
+            pass
+        else:
+            raise forms.ValidationError("Must agree to terms and conditions before adding.")
+
+        return agree
+
 class ProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs): 
         super(ProfileForm, self).__init__(*args, **kwargs)                       
@@ -83,4 +101,23 @@ class RestaurantForm(forms.ModelForm):
         model = Restaurant
         fields = ['name']
 
+class DriverLoginForm(forms.Form):
+    driverCode = forms.CharField(label='Driver Code', max_length=12)
+    password = forms.CharField(label='Password', widget=forms.PasswordInput)
+
+    # use clean methods to define custom validation rules
+    def clean_driverCode(self):
+        driverCode = self.cleaned_data.get('driverCode')
+        filter_result = Drivers.objects.filter(driverCode__exact=driverCode)
+        if not filter_result:
+            raise forms.ValidationError('This Driver Code does not exist. Please ask your manager.')
+        return driverCode
+
+class DriverEditForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs): 
+        super(DriverEditForm, self).__init__(*args, **kwargs)                       
+
+    class Meta:
+        model = Drivers
+        fields = ['driverName', 'phone']
 
