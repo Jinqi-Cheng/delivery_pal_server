@@ -23,4 +23,8 @@ urlpatterns = [
     path('driver/edit/', views.edit_DriverProfile, name='driverEdit' ),
     path('driver/edit/change-password/', views.PasswordChangeForDriver,name='PWChangeForDriver'), 
 
+    path('TermAndConditionPage', views.TermAndConditionPage, name='termCondition' ),
+    path('PrivacyPolicyPage', views.PrivacyPolicyPage, name='PrivacyPolicy' ),
+    path('DisclaimerPage', views.DisclaimerPage, name='Disclaimer' ),
+
 ]

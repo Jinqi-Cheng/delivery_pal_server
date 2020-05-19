@@ -1,8 +1,8 @@
 from django.core.files.storage import FileSystemStorage
-from django.shortcuts import render
-from django.shortcuts import redirect
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.db.models import F, Max
+from django.contrib import messages
 
 from django.http import JsonResponse
 from .models import Orders, Drivers
@@ -13,7 +13,6 @@ from .tables import OrderTable,OrderFilter
 from django.db.models import Sum
 from django_filters.views import FilterView
 from django_tables2.views import SingleTableMixin
-from django.contrib import messages
 
 from datetime import date
 import threading
@@ -32,6 +31,9 @@ def upload(request):
         restaurant = Restaurant.objects.get(user_id = request.user.id)
         if not restaurant.isActive:
             return render(request, 'users/profile.html', {'restaurant': restaurant})
+        if not restaurant.agreeTerm:
+            return redirect('agreementAccept')
+        
 
     if request.method == 'POST':
         uploadSel_form = uploadForm(request.user.id, request.POST, request.FILES)
@@ -330,3 +332,22 @@ def driver_item_list(request):
     for name,orders in driver_dic.items():
         driver_item[name] += [(key,value) for key,value in orders.items()]
     return render(request, "driver_item_list.html", {'restaurant': restaurant, 'drivers': driver_item.items()})
+
+
+@login_required
+def agreementAccept(request):
+    if request.user.is_superuser:
+        return redirect('/admin/')
+    else:
+        restaurant = Restaurant.objects.get(user_id = request.user.id)
+        if not restaurant.isActive:
+            return render(request, 'users/profile.html', {'restaurant': restaurant})
+
+    if request.method == "POST":
+        Restaurant.objects.filter(user_id = request.user.id).update(agreeTerm=True)
+        return redirect('upload')
+    return render(request, "agreementCheck.html")
+
+
+
+

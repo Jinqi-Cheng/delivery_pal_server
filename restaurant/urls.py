@@ -16,4 +16,5 @@ urlpatterns = [
     path('printable_routes',views.printable_routes,name='printable_routes'),
     path('driver_item_list/',views.driver_item_list,name='driver_item_list'),
     path('driverManager/<int:id>/change-password/', views.driverPasswordChangeView,name='driverPWChange'), 
+    path('agreement_check/', views.agreementAccept, name='agreementAccept'),
 ]

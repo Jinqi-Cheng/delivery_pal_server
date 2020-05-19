@@ -1,0 +1,19 @@
+{% extends "restaurant_base.html" %}
+{% load bootstrap3 %}
+{% block title %}Driver Delete{% endblock %}
+{% block content_restaurant %}
+<div calss="col-sm-4">
+    <h2>You must agree to terms before using the service.</h2>
+    <hr/>
+    <h3>
+        I have read and agree to <a href="{% url 'termCondition'%}" target="_blank">Terms and Conditions</a>, <a href="{% url 'PrivacyPolicy'%}" target="_blank">Privacy Policy</a>,
+         and '<a href="{% url 'Disclaimer'%}" target="_blank">Disclaimer</a> above.
+    </h3>
+    <form action='.' method='POST'>
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">
+            Yes, I agree.
+        </button>
+    </form>
+</div>
+{% endblock %}

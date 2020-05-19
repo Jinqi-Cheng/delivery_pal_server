@@ -67,8 +67,9 @@ def signup(request):
             email = form.cleaned_data['email']
             password = form.cleaned_data['password2']
             name = form.cleaned_data['name']
+            agreed = form.cleaned_data['agreeTerm']
             user = User.objects.create_user(username=username, password=password, email=email)
-            restaurant = Restaurant(user=user, name = name)
+            restaurant = Restaurant(user=user, name = name, agreeTerm=agreed)
             restaurant.save()
 
             form = SignUpForm()
@@ -139,4 +140,10 @@ def PasswordChangeForDriver(request):
         form = DriverPWChangeForm(driver)
     return render(request, 'driver/ChangePassowrdForDriver.html', {'form': form})
 
-
+# Agreements
+def TermAndConditionPage(request):
+    return render(request, 'agreements/Terms_and_conditions.htm')
+def PrivacyPolicyPage(request):
+    return render(request, 'agreements/Privacy_policy.htm')
+def DisclaimerPage(request):
+    return render(request, 'agreements/Disclaimer.htm')
