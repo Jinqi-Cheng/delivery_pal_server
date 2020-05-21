@@ -10,15 +10,17 @@ import math
 def geocode(addr_list):
     addresses = [addr.replace(" ", "+") for addr in addr_list]
     api_key = "AIzaSyB6qF6LxDz2bo1cY0A_yqVAvjl1wGk20Ls"
-    url_base = "https://maps.googleapis.com/maps/api/geocode/json?address={}&key={}"
+    url_base = "https://maps.googleapis.com/maps/api/geocode/json?key={}&address={}"
     lat = []
     lng = []
     res = []
     err = []
     good_addr = []
     for addr in addresses:
-        url = url_base.format(addr, api_key)
-        if "（" in url or "，" in url or "ﬂ" in url or "#" in url:
+        url = url_base.format(api_key, addr)
+        print(url)
+        # if "（" in url or "，" in url or "ﬂ" in url or "#" in url:
+        if "（" in url or "，" in url:
             print("url:",url)
             err.append(addr)
             continue
@@ -35,7 +37,7 @@ def geocode(addr_list):
             continue
 
         # print("data:",url)
-        if data['status'] == "REQUEST_DENIED":
+        if data['status'] != "OK":
             print("data:", url)
             print(data)
             err.append(addr)
