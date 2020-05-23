@@ -61,7 +61,7 @@ def processOrder(uploaded_file_loc, restaurant, driver_list, is_lunch):
         Order.pdf2DB(uploaded_file_loc,restaurant.idRestaurant,today, is_lunch)
         print('PDF2DB DONE')
     else:
-        Order.csv2DB(uploaded_file_loc, restaurant.idRestaurant, today, is_lunch)
+        Order.csv2DB_check(uploaded_file_loc, restaurant.idRestaurant, today, is_lunch)
         print('CSV2DB DONE')
     Order.assign_order_driver(restaurant.idRestaurant,today,driver_list, is_lunch)
     print('assign_order_driver DONE!')

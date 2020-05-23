@@ -19,8 +19,8 @@ def geocode(addr_list):
     for addr in addresses:
         url = url_base.format(api_key, addr)
         print(url)
-        # if "（" in url or "，" in url or "ﬂ" in url or "#" in url:
-        if "（" in url or "，" in url:
+        if "（" in url or "，" in url or "ﬂ" in url or "#" in url:
+        # if "（" in url or "，" in url:
             print("url:",url)
             err.append(addr)
             continue
@@ -54,7 +54,7 @@ def distance_matrix(addr_list):
     api_key = "AIzaSyB6qF6LxDz2bo1cY0A_yqVAvjl1wGk20Ls"
     url = "https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins={}&destinations={}&key={}".format(
         addr_str, addr_str, api_key)
-
+    print(url)
     wp = urllib.request.urlopen(url)
 
     pw = wp.read()
