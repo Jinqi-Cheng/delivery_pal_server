@@ -27,7 +27,6 @@ def permutation_sort(addr_list,id_list):
         if best_distance > curr_distance:
             best_distance = curr_distance
             best_perm = perm
-    print(best_perm)
     return best_perm
 def insert_point(opt_seq,mat_dist,points_num):
     opt_seq = list(opt_seq)
@@ -65,14 +64,82 @@ def insertion_permutation_sort(addr_list,id_list):
     return id_list
 class Order:
 
-
     @classmethod
-    def csv2DB(cls, file_path,restaurant_id,date,is_lunch):
-        date += " 12:00" if is_lunch else " 18:00"
+    def CSV2DB(cls,df,restaurant_id,date):
+        Orders.objects.filter(idRestaurant_id=restaurant_id, OrderDate=date).delete()
 
-        Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=date).delete()
-        df = pd.read_csv(file_path)
-        print(df.columns)
+        length = len(df)
+        for row_index in range(length):
+            row = df.iloc[row_index]
+            id_display = row.订单序号
+            is_pickup = False
+            if "送货地址" in df.columns:
+                if row.送货地址 == "nan":
+                    is_pickup = True
+                    address = row.提货点 if "提货点" in df.columns and row.提货点 != "nan" else ""
+                else:
+                    is_pickup = False
+                    address = row.送货地址
+            address = address.replace("\n", "")
+            phone = row.手机号码
+            name = row.客户昵称
+            note = row.备注 if "备注" in df.columns and row.备注 != "nan" else ""
+            price = row.现金支付金额
+            meals = re.findall(re.compile(r"(.*) \* (\d*)", re.M), row.商品汇总)
+            meals_dic = {key: value for key, value in meals}
+            Orders.objects.create(idRestaurant_id=restaurant_id,
+                                  idDisplay=id_display,
+                                  Price=price, ReceiverName=name,
+                                  Meals=meals_dic, OrderDate=date, DriverId=None, Address=address,
+                                  isPickup=is_pickup,
+                                  Phone=phone,
+                                  Note=note)
+        pass
+    @classmethod
+    def shopify_CSV2DB(cls,df):
+        length = len(df)
+        dic = dict()
+        if 'Shipping Name' in df.columns:
+            df['Shipping Name'] = df['Shipping Name'].astype(str)
+        if 'Phone' in df.columns:
+            df['Phone'] = df['Phone'].astype(str)
+        if 'Notes' in df.columns:
+            df['Notes'] = df['Notes'].astype(str)
+        if 'Shipping Address1' in df.columns:
+            df['Shipping Address1'] = df['Shipping Address1'].astype(str)
+        if 'Shipping Address2' in df.columns:
+            df['Shipping Address2'] = df['Shipping Address2'].astype(str)
+        if 'Name' in df.columns:
+            df['Name'] = df['Name'].astype(str)
+        if 'Lineitem name' in df.columns:
+            df['Lineitem name'] = df['Lineitem name'].astype(str)
+        if 'Lineitem quantity' in df.columns:
+            df['Lineitem quantity'] = df['Lineitem quantity'].astype(str)
+        for row_index in range(length):
+            row = df.iloc[row_index]
+            if row['Name'] not in dic:
+                order_dic = dict()
+                order_dic['客户昵称'] = row['Shipping Name']
+                order_dic['手机号码'] = row['Phone'][:-2] if row['Phone'] != "nan" else ""
+                order_dic['备注'] = row['Notes'] if row['Notes'] != "nan" else ""
+                order_dic['送货地址'] = (row['Shipping Address1'] if row['Shipping Address1'] != "nan" else "") + \
+                                    " " + \
+                                    (row['Shipping Address2'] if row['Shipping Address2'] != "nan" else "")
+                order_dic['现金支付金额'] = 0
+                order_dic['提货点'] = ""
+                order_dic['订单序号'] = row['Name'][1:]  # remove the first pound
+                order_dic['商品汇总'] = row['Lineitem name'] + \
+                                    " * " + \
+                                    row['Lineitem quantity']
+                dic[row['Name']] = order_dic
+            else:
+                dic[row['Name']]['商品汇总'] += "\n" + row['Lineitem name'] + " * " + row['Lineitem quantity']
+        df = pd.DataFrame(columns=['客户昵称', '手机号码', '备注', '送货地址', '现金支付金额', '提货点', '订单序号', '商品汇总'])
+        for value in dic.values():
+            df = df.append([value], ignore_index=True)
+        return df
+    @classmethod
+    def Weee_excel_preprocess(cls, df):
         if "送货地址" in df.columns:
             df['送货地址'] = df['送货地址'].astype(str)
         if "提货点" in df.columns:
@@ -83,43 +150,38 @@ class Order:
             df["备注"] = df["备注"].astype(str)
         if "商品汇总" in df.columns:
             df["商品汇总"] = df["商品汇总"].astype(str)
-        length = len(df)
-        for row_index in range(length):
-            row = df.iloc[row_index]
-            id_display = row.订单序号
-            # pickup_address = row.提货点 if "提货点" in df.columns and row.提货点 != "nan" else ""
-            is_pickup = False
-            if "送货地址" in df.columns:
-                if row.送货地址 == "nan":
-                    is_pickup = True
-                    address = row.提货点 if "提货点" in df.columns and row.提货点 != "nan" else ""
-                else:
-                    is_pickup = False
-                    address = row.送货地址
-            address = address.replace("\n", "")
-            # address = address.strip("\n")
-            # address = row.送货地址 if "送货地址" in df.columns and row.送货地址 != "nan" else ""
-            phone = row.手机号码
-            name = row.客户昵称
-            note = row.备注 if "备注" in df.columns and row.备注 != "nan" else ""
-            price = row.现金支付金额
-            # print('商品汇总',row.商品汇总)
-            meals = re.findall(re.compile(r"(.*) \* (\d*)", re.M), row.商品汇总)
-            if not meals: # original Weee UTF-8 CSV
-                """This is a bug from Weee. 
-                Weee's UTF-8 CSV puts the 商品汇总 into the last column, which is not properly.
-                So I have to chekc if the 商品汇总 is correct or I take the last column"""
-                meals = re.findall(re.compile(r"(.*) \* (\d*)", re.M), row[df.columns[-1]])
-            meals_dic = {key: value for key, value in meals}
-            print("meals:", meals_dic)
-            Orders.objects.create(idRestaurant_id=restaurant_id,
-                                  idDisplay=id_display,
-                                  Price=price, ReceiverName=name,
-                                  Meals=meals_dic, OrderDate=date, DriverId=None, Address=address,
-                                  isPickup=is_pickup,
-                                  Phone=phone,
-                                  Note=note)
+        return df
 
+    @classmethod
+    def Weee_CSV_preprocess(cls, df):
+        if "送货地址" in df.columns:
+            df['送货地址'] = df['送货地址'].astype(str)
+        if "提货点" in df.columns:
+            df['提货点'] = df['提货点'].astype(str)
+        if "现金支付金额" in df.columns:
+            df['现金支付金额'] = df['现金支付金额'].astype(float)
+        if "备注" in df.columns:
+            df["备注"] = df["备注"].astype(str)
+        df["商品汇总"] = df[df.columns[-1]]
+        if "商品汇总" in df.columns:
+            df["商品汇总"] = df["商品汇总"].astype(str)
+        return df
+
+
+    @classmethod
+    def csv2DB_check(cls, file_path, restaurant_id, date, is_lunch):
+        date += " 12:00" if is_lunch else " 18:00"
+        df = pd.read_csv(file_path)
+        if "商品汇总" not in df.columns:
+            df = Order.shopify_CSV2DB(df)
+        else:
+            df["商品汇总"] = df["商品汇总"].astype(str)
+            meals = re.findall(re.compile(r"(.*) \* (\d*)", re.M), df.iloc[0].商品汇总)
+            if meals:
+                df = Order.Weee_excel_preprocess(df)
+            else:
+                df = Order.Weee_CSV_preprocess(df)
+        Order.CSV2DB(df,restaurant_id,date)
     @classmethod
     def pdf2DB(cls,file_path,restaurant_id,date,is_lunch):
         date += " 12:00" if is_lunch else " 18:00"
@@ -210,7 +272,6 @@ class Order:
                 address_list.append(addr['Address'])
         # address_list = [addr['Address'] for addr in address]
         position,good_addr,err = geocode(address_list)
-        print(position,driver_list)
         cluster_model = EqualGroupsKMeans(n_clusters=len(driver_list),random_state=0)
         cluster_model.fit(position)
         for index,addr in enumerate(good_addr):
@@ -226,7 +287,6 @@ class Order:
         date += " 12:00" if is_lunch else " 18:00"
         driver_list_query = Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=date).values("DriverId_id").distinct()
         driver_list = [value['DriverId_id'] for value in driver_list_query]
-        print(driver_list)
         for driver in driver_list:
 
             if driver==None:
