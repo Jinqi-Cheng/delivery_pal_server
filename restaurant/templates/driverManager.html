@@ -2,44 +2,63 @@
 {% load bootstrap3 %}
 {% block title %}Driver Manager{% endblock %}
 {% block content %}
-<div calss="col-sm-4">
-    <h2>骑手管理</h2>
-    <h3 style="margin: 2px">添加新骑手</h3>
-    <hr style="margin: 2px"/>
-    <br>
-    <form action="." method="post" class="form">
-        {% csrf_token %}
-        {% bootstrap_form driver_form %}
-        {% buttons %}
+<div class="app-title">
+    <div>
+        <h1><i class="fa fa-car"></i>司机管理</h1>
+        <p>您可以在此预览已有司机的送餐员编号, 以及添加新司机</p>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6 offset-3">
+        <h3 style="margin: 2px">添加新司机</h3>
+        <hr style="margin: 2px"/>
+        <br>
+        <form action="." method="post" class="form">
+            {% csrf_token %}
+        <div class="tile bg-gray">
+
+            <div class="row">
+                <div class="col-md-6">
+            {{ driver_form.driverName }}</div>
+        <div class="col-md-2">
             <button type="submit" class="btn btn-primary">
-                添加骑手
+                添加
             </button>
-        {% endbuttons %}
-    </form>
-    <br>
-    <h3 style="margin: 2px">骑手列表</h3>
-    <hr style="margin: 2px"/>
-    <br>
-    <table class="table table-bordered table-hover table-striped">
-        <thead>
+        </div>
+        </div>
+
+        </div>
+
+{#            {% bootstrap_form driver_form %}#}
+<!--            {{ driver_form.driverName }}-->
+
+        </form>
+        <br>
+        <h3 style="margin: 2px">司机列表</h3>
+        <hr style="margin: 2px"/>
+        <br>
+        <table class="table table-bordered table-hover table-striped">
+            <thead>
             <tr>
-{#                <th>ID</th>#}
-                <th>骑手姓名</th>
-                <th>骑手代码</th>
+                {#                <th>ID</th>#}
+                <th>司机名称</th>
+                <th>司机编号</th>
                 <th>删除</th>
             </tr>
-        </thead>
-        <tbody>
+            </thead>
+            <tbody>
             {% for driver in drivers %}
-                <tr>
-{#                    <td>{{driver.idDriver}}</td>#}
-                    <td>{{driver.driverName}}</td>
-                    <td>{{driver.driverCode}}</td>
-                    <td><a href="{% url 'drivers-delete' driver.idDriver %}" class="btn btn-info" role="button">Delete</a></td>
-                </tr>
+            <tr>
+                {#                    <td>{{driver.idDriver}}</td>#}
+                <td>{{driver.driverName}}</td>
+                <td>{{driver.driverCode}}</td>
+                <td><a href="{% url 'drivers-delete' driver.idDriver %}" class="fa fa-times custom-delete-btn" role="button" style="font-size: 1.4rem"></a></td>
+            </tr>
             {% endfor %}
-        </tbody>
-    </table>
+            </tbody>
+        </table>
 
+    </div>
 </div>
+
 {% endblock %}

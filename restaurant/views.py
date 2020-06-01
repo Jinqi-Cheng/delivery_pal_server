@@ -51,7 +51,8 @@ def dashboard(request):
     else:
         uploadSel_form = uploadForm(request.user.id)
     restaurant = Restaurant.objects.get(user_id = request.user.id)
-    return render(request, 'home_upload.html',{'restaurant':restaurant,'uploadSel_form':uploadSel_form})
+    # return render(request, 'home_upload.html',{'restaurant':restaurant,'uploadSel_form':uploadSel_form})
+    return render(request, 'upload.html',{'restaurant':restaurant,'uploadSel_form':uploadSel_form, 'website':"dashboard"})
 
 def processOrder(uploaded_file_loc, restaurant, driver_list, is_lunch):
     today = date.today()
@@ -79,7 +80,7 @@ def order_for_kitchen(request):
     datetime = Orders.objects.filter(idRestaurant_id=restaurant).all().aggregate(Max("OrderDate"))
     dic = Order.parser_meals(restaurant.idRestaurant,datetime['OrderDate__max'])
     dic = {key:(value,len(value)) for key,value in dic.items()}
-    return render(request,'order_for_kitchen.html',{'restaurant': restaurant, 'orders':dic.items()})
+    return render(request,'order_for_kitchen.html',{'restaurant': restaurant, 'orders':dic.items(), 'website':"order_for_kitchen"})
 
 def get_order_sequence(request):
     driver_id = request.GET.get('driver_id')
@@ -111,7 +112,7 @@ def driverManager(request):
 
     driver_form = DriverForm(initial={'idRestaurant': restaurant,'driverCode':genDriverCode(restaurant)})
     # driver_form = DriverForm(initial={'idRestaurant': restaurant,'driverCode':genDriverCode(request.user.id, drivers)})
-    return render(request, 'driverManager.html',{'restaurant': restaurant, 'drivers':drivers, 'driver_form':driver_form})
+    return render(request, 'driverManager.html',{'restaurant': restaurant, 'drivers':drivers, 'driver_form':driver_form, 'website':"driverManager"})
 
 def genDriverCode(restaurant):
     alphabet='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -176,7 +177,7 @@ class orderHistoryWithFilter(SingleTableMixin, FilterView):
 @login_required
 def contact_us(request):
     restaurant = Restaurant.objects.get(user_id=request.user.id)
-    return render(request,"contact_us.html",{'restaurant': restaurant})
+    return render(request,"contact_us.html",{'restaurant': restaurant, 'website':"contact_us"})
 
 @login_required
 def printable_routes(request):
@@ -219,7 +220,9 @@ def printable_routes(request):
                          'Phone':order['Phone'],
                          'Note':order['Note'],
                          'Meals':meal2str(order['Meals'])})
-    return render(request, "printable_routes.html",{'restaurant':restaurant,'drivers':driver_dic.items(),'error':error_dic.items(),'pickup':pickup_dic.items()})
+    return render(request, "printable_routes.html",{'restaurant':restaurant,'drivers':driver_dic.items(),
+                                                    'error':error_dic.items(),'pickup':pickup_dic.items(),
+                                                    'website':"printable_routes"})
 
 
 @login_required
@@ -263,7 +266,7 @@ def driver_item_list(request):
     driver_item = defaultdict(list)
     for name,orders in driver_dic.items():
         driver_item[name] += [(key,value) for key,value in orders.items()]
-    return render(request, "driver_item_list.html", {'restaurant': restaurant, 'drivers': driver_item.items()})
+    return render(request, "driver_item_list.html", {'restaurant': restaurant, 'drivers': driver_item.items(), 'website':"driver_item_list"})
 
 @login_required
 def printable_driver_sequence(request):
@@ -305,6 +308,15 @@ def printable_driver_sequence(request):
                          'Phone': order['Phone'],
                          'Note': order['Note'],
                          'Meals': meal2str(order['Meals'])})
+    driver_seq_clipboard = ""
+    index = 1
+    for key,value in driver_dic.items():
+        driver_seq_clipboard+="第 {} 条送餐路线: ".format(index)
+        index+=1
+        for order in value:
+            driver_seq_clipboard+= str(order['idDisplay'])+" "
+        driver_seq_clipboard+="\n"
+
     return render(request, "printable_driver_sequence.html",
                   {'restaurant': restaurant, 'drivers': driver_dic.items(), 'error': error_dic.items(),
-                   'pickup': pickup_dic.items()})
+                   'pickup': pickup_dic.items(), 'driver_seq_clipboard':driver_seq_clipboard,'website':"printable_driver_sequence"})

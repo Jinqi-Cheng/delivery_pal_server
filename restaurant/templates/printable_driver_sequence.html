@@ -1,9 +1,16 @@
 {% extends "restaurant_base.html" %}
 {% block title %}打印路线{% endblock %}
 {% block content %}
+<div class="app-title">
+    <div>
+        <h1><i class="fa fa-map"></i> 打印司机路线</h1>
+        <p>您可以在此预览/打印每位司机的送餐路线</p>
+    </div>
+</div>
+    <div class="tile">
+
     <div class="row">
-        <div class="col-xs-12">
-            <h3>Orders Checklist</h3>
+        <div class="col-md-12">
         {% for name,orders in error %}
                <b><span>{{ name.0 }} {{ name.1 }}</span></b>
                 <br>
@@ -21,7 +28,7 @@
                 <br>
             {% endfor %}
             {% for name,orders in drivers %}
-                <b><span>{{ name.0 }} {{ name.1 }}</span></b>
+                <b><span>{{ name.0 }} | 司机编号: {{ name.1 }}</span></b>
                 <br>
                     {% for order in orders %}
                         {{ order.idDisplay }}
@@ -29,6 +36,24 @@
                 <br>
             {% endfor %}
 
+        <!-- The text field -->
+{#<input type="text" value="{{ driver_seq_clipboard }}" style="display: none;" id="driver_sequence">#}
+            <button class="btn btn-primary" id="driver_clipboard" data-clipboard-text="{{ driver_seq_clipboard }}" data-container="body" data-toggle="popover" data-placement="bottom" data-content="<div class='row'><i class='fa fa-check-circle col-12 copy-popover-center copy-popover-big'></i><h3 class='col-12 copy-popover-center'>已复制</h3><span class='col-12 copy-popover-center copy-popover-small' >请在微信中粘贴!</span></div>">复制</button>
         </div>
+
     </div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js"></script>
+    <script type="text/javascript">
+    var cp = new ClipboardJS('#driver_clipboard');
+
+    $(function () {
+  $('#driver_clipboard').popover({
+    container: 'body',
+      html:true
+  })
+})
+    </script>
 {% endblock %}

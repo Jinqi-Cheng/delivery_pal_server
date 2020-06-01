@@ -4,27 +4,60 @@
 {% load bootstrap3 %}
 {% block title %}历史订单{% endblock %}
 {% block content %}
-    <div class="container">
-        {% block body %}
+    <div class="app-title">
+    <div>
+        <h1><i class="fa fa-map"></i> 历史订单</h1>
+        <p>您可以在此处预览或打印每位司机的详细路线信息</p>
+    </div>
+</div>
         <div class="row">
-            <div>
-                <h3>历史订单</h3>
-                {% if filter %}
-                    <h3>日期筛选</h3>
-                    <form action="" method="get" class="form form-inline">
-                        {% bootstrap_form filter.form layout='inline' %}
-                        {% bootstrap_button 'filter' %}
-                    </form>
-                {% endif %}
-                <div>
-                    {% render_table table %}
+                <div class="col-md-12">
+                    <div class="tile-table">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-bordered table-striped" id="sampleTable">
+                                    <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>价格</th>
+                                        <th>客户姓名</th>
+                                        <th>菜品列表</th>
+                                        <th>送餐日期</th>
+                                        <th>客户地址</th>
+                                        <th>客户电话</th>
+                                        <th>备注</th>
+                                    </tr>
+                                    </thead>
+                                <tbody>
+                                    {% for order in orders %}
+                                        <tr>
+                                        <td>{{ order.idOrder }}</td>
+                                        <td>{{ order.Price }}</td>
+                                        <td>{{ order.ReceiverName }}</td>
+                                            <td>
+                                                {% for meal, number in order.Meals.items %}
+                                                <span> {{ meal }} X {{ number }}</span><br>
+                                                {% endfor %}
+                                            </td>
+                                        <td>{{ order.OrderDate }}</td>
+                                        <td>{{ order.Address }}</td>
+                                        <td>{{ order.Phone }}</td>
+                                        <td>{{ order.Note }}</td>
+                                        </tr>
+                                {% endfor %}
+                                </tbody>
+                                </table>
+                            </div>
+                    </div>
                 </div>
                 <hr style="margin:10px,10px,10px,10px;"/>
-                <h3 style="text-align:left;"> Total:      ${{amount}}
-                {% comment %} <h3 style="text-align:left;"> Commission(0.04&#37;): ${{commission}} {% endcomment %}
             </div>
-        </div>
-        {% endblock %}
     </div>
-{% endblock %}
 
+{% endblock %}
+{% block script %}
+    <!-- Data table plugin-->
+    <script type="text/javascript" src="{% static "javascript/plugins/jquery.dataTables.min.js"%}"></script>
+    <script type="text/javascript" src="{% static "javascript/plugins/dataTables.bootstrap.min.js" %}"></script>
+    <script type="text/javascript">$('#sampleTable').DataTable();</script>
+
+{% endblock %}
