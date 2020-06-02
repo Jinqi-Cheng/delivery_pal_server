@@ -120,7 +120,7 @@ class Order:
             if row['Name'] not in dic:
                 order_dic = dict()
                 order_dic['客户昵称'] = row['Shipping Name']
-                order_dic['手机号码'] = row['Phone'][:-2] if row['Phone'] != "nan" else ""
+                order_dic['手机号码'] = str(round(float(row['Phone']))) if row['Phone'] != "nan" else ""
                 order_dic['备注'] = row['Notes'] if row['Notes'] != "nan" else ""
                 order_dic['送货地址'] = (row['Shipping Address1'] if row['Shipping Address1'] != "nan" else "") + \
                                     " " + \
