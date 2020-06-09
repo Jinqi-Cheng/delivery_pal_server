@@ -1,95 +1,109 @@
 {% extends "restaurant_base.html" %}
-{% block title %}打印路线{% endblock %}
+{% load bootstrap3 %}
+{% block title %}打印详细路线{% endblock %}
 {% block content %}
-    <div class="row" style="display: flex !important">
-        <div class="col-xs-12">
-            <h3 class="hidden-print">订单列表</h3>
+<div class="app-title">
+    <div>
+        <h1><i class="fa fa-map"></i> 打印详细路线</h1>
+        <p>您可以在此处预览或打印每位司机的详细路线信息</p>
+    </div>
+</div>
+
+<!--    <div class="row" style="display: flex !important">-->
+    <div class="row">
+        <div class="col-md-12">
         {% for name,orders in error %}
-                <span>{{ name.0 }} {{ name.1 }}</span>
+            <div class="tile-table">
+                <div class="table-title">{{ name.0 }}{{ name.1 }}</div>
             <table class="table table-bordered table-hover table-striped" style="page-break-after: always;">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>电话</th>
-                        <th>地址</th>
-                        <th>菜品</th>
-                        <th>备注</th>
+                <thead class="w-100">
+                    <tr class="row mx-0">
+                        <th class="col-1">ID</th>
+                        <th class="col-1">电话</th>
+                        <th class="col-3">地址</th>
+                        <th class="col-4">菜品</th>
+                        <th class="col-3">备注</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="w-100">
                     {% for order in orders %}
-                    <tr>
-                        <td class="col-md-1">{{ order.idDisplay }}</td>
-                        <td class="col-md-1">{{ order.Phone }}</td>
-                        <td class="col-md-2">{{ order.Address }}</td>
-                        <td class="col-md-3">
+                    <tr class="row mx-0">
+                        <td class="col-1">{{ order.idDisplay }}</td>
+                        <td class="col-1">{{ order.Phone }}</td>
+                        <td class="col-3">{{ order.Address }}</td>
+                        <td class="col-4">
                             {% for meal in order.Meals %}
                                 <span> {{ meal }}</span><br>
                             {% endfor %}
                         </td>
-                        <td class="col-md-1">{{ order.Note }}</td>
+                        <td class="col-3">{{ order.Note }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+            </div>
             {% endfor %}
         {% for name,orders in pickup %}
-                <span>{{ name.0 }} {{ name.1 }}</span>
-            <table class="table table-bordered table-hover table-striped" style="page-break-after: always;">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>电话</th>
-                        <th>地址</th>
-                        <th>菜品</th>
-                        <th>备注</th>
+            <div class="tile-table">
+                <div class="table-title">{{ name.0 }} {{ name.1 }}</div>
+                <table class="table table-bordered table-hover table-striped" style="page-break-after: always;">
+                    <thead class="w-100">
+                    <tr class="row mx-0">
+                        <th class="col-1">ID</th>
+                        <th class="col-1">电话</th>
+                        <th class="col-3">地址</th>
+                        <th class="col-4">菜品</th>
+                        <th class="col-3">备注</th>
                     </tr>
-                </thead>
-                <tbody>
+                    </thead>
+                    <tbody class="w-100">
                     {% for order in orders %}
-                    <tr>
-                        <td class="col-md-1">{{ order.idDisplay }}</td>
-                        <td class="col-md-1">{{ order.Phone }}</td>
-                        <td class="col-md-2">{{ order.Address }}</td>
-                        <td class="col-md-3">
+                    <tr class="row mx-0">
+                        <td class="col-1">{{ order.idDisplay }}</td>
+                        <td class="col-1">{{ order.Phone }}</td>
+                        <td class="col-3">{{ order.Address }}</td>
+                        <td class="col-4">
                             {% for meal in order.Meals %}
-                                <span> {{ meal }}</span><br>
+                            <span> {{ meal }}</span><br>
                             {% endfor %}
                         </td>
-                        <td class="col-md-1">{{ order.Note }}</td>
+                        <td class="col-3">{{ order.Note }}</td>
                     </tr>
                     {% endfor %}
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
             {% endfor %}
             {% for name,orders in drivers %}
-                <span>{{ name.0 }} {{ name.1 }}</span>
-            <table class="table table-bordered table-hover table-striped" style="page-break-after: always;">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>电话</th>
-                        <th>地址</th>
-                        <th>菜品</th>
-                        <th>备注</th>
+            <div class="tile-table">
+                <div class="table-title">{{ name.0 }} | 司机编号: {{ name.1 }}</div>
+                <table class="table table-bordered table-hover table-striped" style="page-break-after: always;">
+                    <thead class="w-100">
+                    <tr class="row mx-0">
+                        <th class="col-1">ID</th>
+                        <th class="col-1">电话</th>
+                        <th class="col-3">地址</th>
+                        <th class="col-4">菜品</th>
+                        <th class="col-3">备注</th>
                     </tr>
-                </thead>
-                <tbody>
+                    </thead>
+                    <tbody class="w-100">
                     {% for order in orders %}
-                    <tr>
-                        <td class="col-md-1">{{ order.idDisplay }}</td>
-                        <td class="col-md-1">{{ order.Phone }}</td>
-                        <td class="col-md-2">{{ order.Address }}</td>
-                        <td class="col-md-3">
+                    <tr class="row mx-0">
+                        <td class="col-1">{{ order.idDisplay }}</td>
+                        <td class="col-1">{{ order.Phone }}</td>
+                        <td class="col-3">{{ order.Address }}</td>
+                        <td class="col-4">
                             {% for meal in order.Meals %}
-                                <span> {{ meal }}</span><br>
+                            <span> {{ meal }}</span><br>
                             {% endfor %}
                         </td>
-                        <td class="col-md-1">{{ order.Note }}</td>
+                        <td class="col-3">{{ order.Note }}</td>
                     </tr>
                     {% endfor %}
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            </div>
             {% endfor %}
 
         </div>

@@ -1,0 +1,16 @@
+@font-face {
+    font-family: GenJyuuGothic;
+    src:url("../fonts/GenJyuuGothic-Regular.ttf");
+}
+@font-face {
+    font-family: YiWeiMiHei;
+    src:url("../fonts/yiweimihei.ttf") format('embedded-opentype');
+}
+@font-face {
+    font-family: Poppins;
+    src:url("../fonts/Poppins-Regular.ttf");
+}
+@font-face{
+    font-family: SourceHansSans;
+    src: url("../fonts/SourceHanSans/SourceHanSansCN-Normal.otf");
+}

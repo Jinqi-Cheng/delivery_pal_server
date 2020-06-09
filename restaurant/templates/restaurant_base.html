@@ -1,77 +1,155 @@
 {% load static %}
 {% load bootstrap3 %}
 <!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
+<html lang="en">
+  <head>
+    <meta name="description" content="Vali is a responsive and free admin theme built with Bootstrap 4, SASS and PUG.js. It's fully customizable and modular.">
+    <!-- Twitter meta-->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:site" content="@pratikborsadiya">
+    <meta property="twitter:creator" content="@pratikborsadiya">
+    <!-- Open Graph Meta-->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Vali Admin">
+    <meta property="og:title" content="Vali - Free Bootstrap 4 admin theme">
+    <meta property="og:url" content="http://pratikborsadiya.in/blog/vali-admin">
+    <meta property="og:image" content="http://pratikborsadiya.in/blog/vali-admin/hero-social.png">
+    <meta property="og:description" content="Vali is a responsive and free admin theme built with Bootstrap 4, SASS and PUG.js. It's fully customizable and modular.">
     <title>{% block title %}{% endblock %}</title>
-{#    {% load staticfiles %}#}
-    <link rel="shortcut icon" href="{% static '/img/favicon.ico' %}">
-    <link href="https://netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-    <link href="{% static "stylesheets/projectstyle.css" %}" rel="stylesheet">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    {% bootstrap_css %}
-    {% bootstrap_javascript %}
-    <link href="{% static 'django_tables2/bootstrap.css' %}" rel="stylesheet" />
-</head>
-<body>
-
-<div>
-    <nav class="navbar navbar-default">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                <a class="navbar-brand" href="{% url 'dashboard' %}">Delivery Pal : {{ restaurant.name }}</a>
-            </div>
-            <ul class="nav navbar-nav navbar-right">
-                {% if request.user.is_authenticated %}
-                    <li><a href="{% url 'logout' %}"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
-                {% else %}
-                    <li><a href="{% url 'login' %}"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
-                {% endif %}
-            </ul>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="{% static '/img/favicon.ico' %}" />
+    <!-- Main CSS-->
+   <link href="{% static "stylesheets/fonts.css" %}" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="{% static "stylesheets/main.css"%}">
+    <!-- Font-icon css-->
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  </head>
+  <body class="app sidebar-mini">
+    <!-- Navbar-->
+    <header class="app-header"><a class="app-header__logo" href="https://delivery-pal.com">Delivery Pal</a>
+      <!-- Sidebar toggle button--><a class="app-sidebar__toggle" href="#" data-toggle="sidebar" aria-label="Hide Sidebar"></a>
+      <!-- Navbar Right Menu-->
+      <ul class="app-nav">
+{#        <li class="app-search">#}
+{#          <input class="app-search__input" type="search" placeholder="Search">#}
+{#          <button class="app-search__button"><i class="fa fa-search"></i></button>#}
+{#        </li>#}
+{#        <!--Notification Menu-->#}
+{#        <li class="dropdown"><a class="app-nav__item" href="#" data-toggle="dropdown" aria-label="Show notifications"><i class="fa fa-bell-o fa-lg"></i></a>#}
+{#          <ul class="app-notification dropdown-menu dropdown-menu-right">#}
+{#            <li class="app-notification__title">You have 4 new notifications.</li>#}
+{#            <div class="app-notification__content">#}
+{#              <li><a class="app-notification__item" href="javascript:;"><span class="app-notification__icon"><span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x text-primary"></i><i class="fa fa-envelope fa-stack-1x fa-inverse"></i></span></span>#}
+{#                  <div>#}
+{#                    <p class="app-notification__message">Lisa sent you a mail</p>#}
+{#                    <p class="app-notification__meta">2 min ago</p>#}
+{#                  </div></a></li>#}
+{#              <li><a class="app-notification__item" href="javascript:;"><span class="app-notification__icon"><span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x text-danger"></i><i class="fa fa-hdd-o fa-stack-1x fa-inverse"></i></span></span>#}
+{#                  <div>#}
+{#                    <p class="app-notification__message">Mail server not working</p>#}
+{#                    <p class="app-notification__meta">5 min ago</p>#}
+{#                  </div></a></li>#}
+{#              <li><a class="app-notification__item" href="javascript:;"><span class="app-notification__icon"><span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x text-success"></i><i class="fa fa-money fa-stack-1x fa-inverse"></i></span></span>#}
+{#                  <div>#}
+{#                    <p class="app-notification__message">Transaction complete</p>#}
+{#                    <p class="app-notification__meta">2 days ago</p>#}
+{#                  </div></a></li>#}
+{#              <div class="app-notification__content">#}
+{#                <li><a class="app-notification__item" href="javascript:;"><span class="app-notification__icon"><span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x text-primary"></i><i class="fa fa-envelope fa-stack-1x fa-inverse"></i></span></span>#}
+{#                    <div>#}
+{#                      <p class="app-notification__message">Lisa sent you a mail</p>#}
+{#                      <p class="app-notification__meta">2 min ago</p>#}
+{#                    </div></a></li>#}
+{#                <li><a class="app-notification__item" href="javascript:;"><span class="app-notification__icon"><span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x text-danger"></i><i class="fa fa-hdd-o fa-stack-1x fa-inverse"></i></span></span>#}
+{#                    <div>#}
+{#                      <p class="app-notification__message">Mail server not working</p>#}
+{#                      <p class="app-notification__meta">5 min ago</p>#}
+{#                    </div></a></li>#}
+{#                <li><a class="app-notification__item" href="javascript:;"><span class="app-notification__icon"><span class="fa-stack fa-lg"><i class="fa fa-circle fa-stack-2x text-success"></i><i class="fa fa-money fa-stack-1x fa-inverse"></i></span></span>#}
+{#                    <div>#}
+{#                      <p class="app-notification__message">Transaction complete</p>#}
+{#                      <p class="app-notification__meta">2 days ago</p>#}
+{#                    </div></a></li>#}
+{#              </div>#}
+{#            </div>#}
+{#            <li class="app-notification__footer"><a href="#">See all notifications.</a></li>#}
+{#          </ul>#}
+{#        </li>#}
+{#        <!-- User Menu-->#}
+{#        <li class="dropdown"><a class="app-nav__item" href="#" data-toggle="dropdown" aria-label="Open Profile Menu"><i class="fa fa-user fa-lg"></i></a>#}
+{#          <ul class="dropdown-menu settings-menu dropdown-menu-right">#}
+{#            <li><a class="dropdown-item" href="page-user.html"><i class="fa fa-cog fa-lg"></i> Settings</a></li>#}
+{#            <li><a class="dropdown-item" href="page-user.html"><i class="fa fa-user fa-lg"></i> Profile</a></li>#}
+{#            <li><a class="dropdown-item" href="page-login.html"><i class="fa fa-sign-out fa-lg"></i> Logout</a></li>#}
+{#          </ul>#}
+{#        </li>#}
+      </ul>
+    </header>
+    <!-- Sidebar menu-->
+    <div class="app-sidebar__overlay" data-toggle="sidebar"></div>
+    <aside class="app-sidebar">
+      <div class="app-sidebar__user">
+          <i class="fa fa-lg fa-fw fa-user-circle app-sidebar__user-avatar" style="font-size: 24px"></i>
+{#          <img class="app-sidebar__user-avatar" src="https://s3.amazonaws.com/uifaces/faces/twitter/jsa/48.jpg" alt="User Image">#}
+        <div>
+          <p class="app-sidebar__user-name">{{ restaurant.name }}</p>
+{#          <p class="app-sidebar__user-designation">Frontend Developer</p>#}
         </div>
-    </nav>
-
-</div>
-
-{#<div class="wrapper">#}
-    <div class="container-fluid">
-    <div class="row">
-
-    <!-- Sidebar -->
-    <nav id="sidebar" class="col-md-2 hidden-print">
-        <ul class="nav nav-pills nav-stacked" style="text-align: center">
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'dashboard' %}">上传文件</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'driverManager' %}">骑手管理</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'order_history' %}">历史订单</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'printable_routes' %}">打印路线</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'order_for_kitchen' %}">订单分拣</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'driver_item_list' %}">司机货单</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'printable_driver_sequence' %}">司机路线</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'contact_us' %}">联系我们</a>
-            </li>
-        </ul>
-    </nav>
-    <!-- Page Content -->
-    <div class="col-md-8">
+      </div>
+      <ul class="app-menu">
+        <li><a class="app-menu__item {% if website == "dashboard" %} active {% endif %}" href="{% url 'dashboard' %}"><i class="app-menu__icon fa fa-upload"></i><span class="app-menu__label">上传文件</span></a></li>
+        <li class="treeview {% if website == "printable_routes" or website == "printable_driver_sequence" %} is-expanded {% endif %}">
+            <a class="app-menu__item" href="#" data-toggle="treeview">
+                <i class="app-menu__icon fa fa-print"></i><span class="app-menu__label">打印路线</span><i class="treeview-indicator fa fa-angle-right"></i></a>
+          <ul class="treeview-menu">
+            <li><a class="treeview-item {% if website == "printable_routes" %} active {% endif %}" href="{% url 'printable_routes' %}"><i class="icon fa fa-circle-o"></i>打印详细路线</a></li>
+            <li><a class="treeview-item {% if website == "printable_driver_sequence" %} active {% endif %}" href="{% url 'printable_driver_sequence' %}"><i class="icon fa fa-circle-o"></i>打印司机路线</a></li>
+          </ul>
+        </li>
+        <li><a class="app-menu__item {% if website == "driverManager" %} active {% endif %}" href="{% url 'driverManager' %}"><i class="app-menu__icon fa fa-car"></i><span class="app-menu__label">司机管理</span></a></li>
+        <li><a class="app-menu__item {% if website == "order_for_kitchen" %} active {% endif %}"  href="{% url 'order_for_kitchen' %}"><i class="app-menu__icon fa fa-list"></i><span class="app-menu__label">订单分拣</span></a></li>
+        <li><a class="app-menu__item {% if website == "orderHistory" %} active {% endif %}"  href="{% url 'order_history' %}"><i class="app-menu__icon fa fa-history"></i><span class="app-menu__label">历史订单</span></a></li>
+        <li><a class="app-menu__item {% if website == "contact_us" %} active {% endif %}"  href="{% url 'contact_us' %}"><i class="app-menu__icon fa fa-envelope"></i><span class="app-menu__label">联系我们</span></a></li>
+        <li class="treeview"><a class="app-menu__item" href="#" data-toggle="treeview"><i class="app-menu__icon fa fa-edit"></i><span class="app-menu__label">使用教程</span><i class="treeview-indicator fa fa-angle-right"></i></a>
+          <ul class="treeview-menu">
+            <li><a class="treeview-item" href="form-components.html"><i class="icon fa fa-circle-o"></i> Form Components</a></li>
+            <li><a class="treeview-item" href="form-custom.html"><i class="icon fa fa-circle-o"></i> Custom Components</a></li>
+            <li><a class="treeview-item" href="form-samples.html"><i class="icon fa fa-circle-o"></i> Form Samples</a></li>
+            <li><a class="treeview-item" href="form-notifications.html"><i class="icon fa fa-circle-o"></i> Form Notifications</a></li>
+          </ul>
+        </li>
+      </ul>
+    </aside>
+    <main class="app-content">
         {% block content %}
         {% endblock %}
-    </div>
-    </div>
-{#    </div>#}
-</div>
+    </main>
+    <!-- Essential javascripts for application to work-->
+    <script src="{% static "javascript/jquery-3.3.1.min.js" %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="{% static "javascript/popper.min.js" %}"></script>
+    <script src="{% static "javascript/bootstrap.min.js" %}"></script>
+    <script src="{% static "javascript/main.js" %}"></script>
+    <!-- The javascript plugin to display page loading on top-->
+    <script src="{% static "javascript/plugins/pace.min.js" %}"></script>
+    <!-- Page specific javascripts-->
+    <script type="text/javascript" src="{% static "javascript/plugins/chart.js" %}"></script>
+
+    {% block script %}
+        {% endblock %}
+    <!-- Google analytics script-->
+    <script type="text/javascript">
+      if(document.location.hostname == 'pratikborsadiya.in') {
+      	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+      	ga('create', 'UA-72504830-1', 'auto');
+      	ga('send', 'pageview');
+      }
+    </script>
+  </body>
+</html>
