@@ -63,7 +63,12 @@ def insertion_permutation_sort(addr_list,id_list):
     id_list = sorted(id_list, key=lambda x: dic[x])
     return id_list
 class Order:
-
+    emoji_pattern = re.compile("["
+                               u"\U0001F600-\U0001F64F"  # emoticons
+                               u"\U0001F300-\U0001F5FF"  # symbols & pictographs
+                               u"\U0001F680-\U0001F6FF"  # transport & map symbols
+                               u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
+                               "]+", flags=re.UNICODE)
     @classmethod
     def CSV2DB(cls,df,restaurant_id,date):
         Orders.objects.filter(idRestaurant_id=restaurant_id, OrderDate=date).delete()
@@ -93,7 +98,7 @@ class Order:
                                   Meals=meals_dic, OrderDate=date, DriverId=None, Address=address,
                                   isPickup=is_pickup,
                                   Phone=phone,
-                                  Note=note)
+                                  Note=Order.emoji_pattern.sub(r'', note))
         pass
     @classmethod
     def shopify_CSV2DB(cls,df):
