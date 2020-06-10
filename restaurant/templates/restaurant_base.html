@@ -115,10 +115,10 @@
         <li><a class="app-menu__item {% if website == "contact_us" %} active {% endif %}"  href="{% url 'contact_us' %}"><i class="app-menu__icon fa fa-envelope"></i><span class="app-menu__label">联系我们</span></a></li>
         <li class="treeview"><a class="app-menu__item" href="#" data-toggle="treeview"><i class="app-menu__icon fa fa-edit"></i><span class="app-menu__label">使用教程</span><i class="treeview-indicator fa fa-angle-right"></i></a>
           <ul class="treeview-menu">
-            <li><a class="treeview-item" href="form-components.html"><i class="icon fa fa-circle-o"></i> Form Components</a></li>
-            <li><a class="treeview-item" href="form-custom.html"><i class="icon fa fa-circle-o"></i> Custom Components</a></li>
-            <li><a class="treeview-item" href="form-samples.html"><i class="icon fa fa-circle-o"></i> Form Samples</a></li>
-            <li><a class="treeview-item" href="form-notifications.html"><i class="icon fa fa-circle-o"></i> Form Notifications</a></li>
+            <li><a class="treeview-item" href="{% static "tutorials/Delivery-Pal App使用教程.pdf" %}"><i class="icon fa fa-circle-o"></i> Delivery-Pal App使用教程</a></li>
+            <li><a class="treeview-item" href="{% static "tutorials/Delivery-Pal网站使用教程.pdf" %}"><i class="icon fa fa-circle-o"></i> Delivery-Pal网站使用教程</a></li>
+            <li><a class="treeview-item" href="{% static "tutorials/下载订单文件教程(Shopify).pdf" %}"><i class="icon fa fa-circle-o"></i> 下载订单文件教程(Shopify)</a></li>
+            <li><a class="treeview-item" href="{% static "tutorials/下载订单文件教程(Weee).pdf" %}"><i class="icon fa fa-circle-o"></i> 下载订单文件教程(Weee)</a></li>
           </ul>
         </li>
       </ul>

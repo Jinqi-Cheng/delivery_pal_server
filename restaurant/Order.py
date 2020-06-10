@@ -50,7 +50,7 @@ def insert_point(opt_seq,mat_dist,points_num):
             pos_index = 0
         if mi > mat_dist[(opt_seq[-1],point)]:
             mi = mat_dist[(opt_seq[-1],point)]
-            pos_index = len(opt_seq)-1
+            pos_index = len(opt_seq)
         opt_seq.insert(pos_index,point)
     return opt_seq
 def insertion_permutation_sort(addr_list,id_list):
