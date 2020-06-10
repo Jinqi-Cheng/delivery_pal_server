@@ -1,0 +1,80 @@
+{% extends "restaurant_base.html" %}
+{% load bootstrap3 %}
+{% block title %}Home{% endblock %}
+{% block content %}
+      <div class="app-title">
+        <div>
+          <h1><i class="fa fa-upload"></i> 上传订单文件</h1>
+          <p>您可以在此上传来自Weee/Shopify的csv订单文件. 请参考: <b style="font-style: normal; color:#ECA336">网页使用教程, <a>下载订单文件教程(Weee)</a>, <a>下载订单文件教程(Shopify)</a></b></p>
+        </div>
+<!--        <ul class="app-breadcrumb breadcrumb">-->
+<!--          <li class="breadcrumb-item"><i class="fa fa-home fa-lg"></i></li>-->
+<!--          <li class="breadcrumb-item"><a href="#">Dashboard</a></li>-->
+<!--        </ul>-->
+      </div>
+    <form action="." method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+      <div class="row">
+        <div class="col-md-6 offset-md-3">
+          <div class="tile bg-gray">
+              <h3 class="tile-title">第一步: 选择您的CSV文件</h3>
+              {{ uploadSel_form.file }}
+              <label for="id_file" class="btn btn-white">选择文件</label>
+              <span class="file_name"></span>
+          </div>
+        </div>
+      </div>
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+          <div class="tile bg-gray">
+              <h3 class="tile-title">第二步: 选择您的送餐司机</h3>
+              {{ uploadSel_form.drivers }}
+          </div>
+        </div>
+        </div>
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+          <div class="tile bg-gray">
+              <div class="form-group">
+              <h3 class="tile-title">第三步: 选择您的送餐时间段</h3>
+              {{ uploadSel_form.Period }}
+              </div>
+          </div>
+        </div>
+        </div>
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+          <div class="tile bg-gray">
+              <h3 class="tile-title">第四步: 上传</h3>
+              {% buttons %}
+            <button type="submit" class="btn btn-primary">
+              确认上传
+            </button>
+            {% endbuttons %}
+          </div>
+          </div>
+      </div>
+    </form>
+{% endblock %}
+
+{% block script %}
+    <script type="text/javascript">
+    var inputs = document.querySelectorAll( '.html_file_upload' );
+
+    Array.prototype.forEach.call( inputs, function( input )
+{
+  var label    = document.querySelector( '.file_name' );
+
+    input.addEventListener( 'change', function( e )
+  {
+      var fileName = '';
+      if(this.files)
+          fileName = e.target.value.split( '\\' ).pop();
+      if( fileName )
+          label.innerHTML = fileName;
+      else
+          label.innerHTML = '';
+  });
+});
+    </script>
+{% endblock %}
