@@ -99,10 +99,10 @@ def driverManager(request):
             restaurant = Restaurant.objects.get(user_id = request.user.id)
             restaurant.driverNumber = F('driverNumber') + 1
             restaurant.save()
-            # print('New Name:', new_driver.driverName)
-            # print('New Code:', new_driver.driverCode)
-            # print('New ID:', new_driver.idDriver)
-            # redirect('restaurant/driverManager')
+            print('New Name:', new_driver.driverName)
+            print('New Code:', new_driver.driverCode)
+            print('New ID:', new_driver.idDriver)
+            redirect('restaurant/driverManager')
         else:
             print('Fail')
     else:
