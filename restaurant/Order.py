@@ -50,7 +50,7 @@ def insert_point(opt_seq,mat_dist,points_num):
             pos_index = 0
         if mi > mat_dist[(opt_seq[-1],point)]:
             mi = mat_dist[(opt_seq[-1],point)]
-            pos_index = len(opt_seq)-1
+            pos_index = len(opt_seq)
         opt_seq.insert(pos_index,point)
     return opt_seq
 def insertion_permutation_sort(addr_list,id_list):
@@ -63,7 +63,12 @@ def insertion_permutation_sort(addr_list,id_list):
     id_list = sorted(id_list, key=lambda x: dic[x])
     return id_list
 class Order:
-
+    emoji_pattern = re.compile("["
+                               u"\U0001F600-\U0001F64F"  # emoticons
+                               u"\U0001F300-\U0001F5FF"  # symbols & pictographs
+                               u"\U0001F680-\U0001F6FF"  # transport & map symbols
+                               u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
+                               "]+", flags=re.UNICODE)
     @classmethod
     def CSV2DB(cls,df,restaurant_id,date):
         Orders.objects.filter(idRestaurant_id=restaurant_id, OrderDate=date).delete()
@@ -93,7 +98,7 @@ class Order:
                                   Meals=meals_dic, OrderDate=date, DriverId=None, Address=address,
                                   isPickup=is_pickup,
                                   Phone=phone,
-                                  Note=note)
+                                  Note=Order.emoji_pattern.sub(r'', note))
         pass
     @classmethod
     def shopify_CSV2DB(cls,df):
@@ -120,7 +125,7 @@ class Order:
             if row['Name'] not in dic:
                 order_dic = dict()
                 order_dic['客户昵称'] = row['Shipping Name']
-                order_dic['手机号码'] = row['Phone'][:-2] if row['Phone'] != "nan" else ""
+                order_dic['手机号码'] = str(round(float(row['Phone']))) if row['Phone'] != "nan" else ""
                 order_dic['备注'] = row['Notes'] if row['Notes'] != "nan" else ""
                 order_dic['送货地址'] = (row['Shipping Address1'] if row['Shipping Address1'] != "nan" else "") + \
                                     " " + \

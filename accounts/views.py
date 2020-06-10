@@ -6,6 +6,9 @@ from django.shortcuts import redirect
 
 from .models import Restaurant
 
+def index(request):
+    return render(request, 'index.html')
+
 @login_required
 def dashboard(request):
     return redirect('restautant/dashboard.html')

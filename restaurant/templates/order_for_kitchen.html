@@ -1,27 +1,34 @@
 {% extends "restaurant_base.html" %}
 {% block title %}订单分拣{% endblock %}
 {% block content %}
+<div class="app-title">
+    <div>
+        <h1><i class="fa fa-list"></i>订单分拣</h1>
+        <p>您可以在此预览每个菜品/商品的总数以及与它们相对应的单号 </p>
+    </div>
+</div>
     <div class="row">
-        <div class="col-xs-12">
-            <h3>订单分拣</h3>
+        <div class="col-md-10 offset-1">
+            <div class="tile-table">
             <table class="table table-bordered table-hover table-striped">
-                <thead>
-                    <tr>
-                        <th>菜品名称</th>
-                        <th>菜品总数</th>
-                        <th>订单编号</th>
+                <thead class="w-100">
+                    <tr class="row mx-0">
+                        <th class="col-4">菜品名称</th>
+                        <th class="col-2">菜品总数</th>
+                        <th class="col-6">订单编号</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="w-100">
                     {% for key,value in orders %}
-                        <tr>
-                            <td>{{ key }}</td>
-                            <td>{{ value.1 }}</td>
-                            <td>{{ value.0 }}</td>
+                        <tr class="row mx-0">
+                            <td class="col-4">{{ key }}</td>
+                            <td class="col-2">{{ value.1 }}</td>
+                            <td class="col-6">{{ value.0 }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 {% endblock %}

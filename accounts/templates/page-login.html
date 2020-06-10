@@ -1,0 +1,105 @@
+{% load static %}
+{% load bootstrap3 %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+      <script src="https://use.fontawesome.com/releases/v5.13.0/js/all.js" crossorigin="anonymous"></script>
+      <!-- Favicon-->
+      <link rel="icon" type="image/x-icon" href="{% static '/img/favicon.ico' %}" />
+    <!-- Main CSS-->
+      <link href="{% static "stylesheets/fonts.css" %}" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="{% static "stylesheets/main.css" %}">
+    <!-- Font-icon css-->
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>Login</title>
+  </head>
+  <body style="background-color: #7F7F7F">
+    <section class="material-half-bg">
+
+    </section>
+    <section class="material-half-bg-cover"></section>
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top py-3" id="mainNav">
+            <div class="container">
+                <a class="navbar-brand js-scroll-trigger" href="https://delivery-pal.com"><i class="fas fa-home"></i>主页</a><button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+            </div>
+        </nav>
+    <section class="login-content">
+      <div class="logo">
+        <h1>Delivery Pal</h1>
+      </div>
+      <div class="login-box">
+{#        <form class="login-form" action="index.html">#}
+{#          <h2 class="login-head"><i class="fa fa-lg fa-fw fa-user-circle" style="color: #ECA336"></i></h2>#}
+{#          <div class="form-group">#}
+{#            <label class="control-label">账号</label>#}
+{#            <input class="form-control" type="text" placeholder="Username" autofocus>#}
+{#          </div>#}
+{#          <div class="form-group">#}
+{#            <label class="control-label">密码</label>#}
+{#            <input class="form-control" type="password" placeholder="Password">#}
+{#          </div>#}
+{#          <div class="form-group">#}
+{#            <div class="utility">#}
+{#              <div class="animated-checkbox">#}
+{#                <label>#}
+{#                  <input type="checkbox"><span class="label-text">Stay Signed in</span>#}
+{#                </label>#}
+{#              </div>#}
+{#              <p class="semibold-text mb-2"><a href="#" data-toggle="flip">忘记密码</a></p>#}
+{#            </div>#}
+{#          </div>#}
+{#          <div class="form-group btn-container">#}
+{#            <button class="btn btn-primary btn-block"><i class="fa fa-sign-in fa-lg fa-fw"></i>登录</button>#}
+{#          </div>#}
+{#        </form>#}
+        <form class="login-form" action="{% url 'login' %}" method="POST">
+          <h2 class="login-head"><i class="fa fa-lg fa-fw fa-user-circle" style="color: #ECA336"></i></h2>
+          {% csrf_token %}
+{#          {% bootstrap_form form %}#}
+            <div class="form-group">
+                <label class="control-label" for="id_username">用户名</label>
+                {{ form.username }}
+            </div>
+            <div class="form-group">
+                <label class="control-label" for="id_password">密码</label>
+                {{ form.password }}
+            </div>
+          <div class="form-group">
+            <div class="utility">
+              <p class="semibold-text mb-2"><a href="#" data-toggle="flip">忘记密码</a></p>
+            </div>
+          </div>
+          <div class="form-group btn-container">
+            <button class="btn btn-primary btn-block">登录</button>
+          </div>
+        </form>
+        <form class="forget-form" action="index.html">
+          <h3 class="login-head"><i class="fa fa-lg fa-fw fa-lock"></i>忘记密码了?</h3>
+          <div class="form-group">
+            如果您忘记了密码,<br>请发邮件至 support@delivery-pal.com<br> 我们会尽快与您取得联系
+          </div>
+          <div class="form-group mt-5">
+            <p class="semibold-text mb-0"><a href="#" data-toggle="flip"><i class="fa fa-angle-left fa-fw"></i>返回登录</a></p>
+          </div>
+        </form>
+      </div>
+    </section>
+    <!-- Essential javascripts for application to work-->
+    <script src="{% static "javascript/jquery-3.3.1.min.js" %}"></script>
+    <script src="{% static "javascript/popper.min.js" %}"></script>
+    <script src="{% static "javascript/bootstrap.min.js" %}"></script>
+    <script src="{% static "javascript/main.js" %}"></script>
+    <!-- The javascript plugin to display page loading on top-->
+    <script src="{% static "javascript/plugins/pace.min.js" %}"></script>
+    <script type="text/javascript">
+      // Login Page Flipbox control
+      $('.login-content [data-toggle="flip"]').click(function() {
+      	$('.login-box').toggleClass('flipped');
+      	return false;
+      });
+    </script>
+  </body>
+</html>
