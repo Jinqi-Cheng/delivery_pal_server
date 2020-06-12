@@ -19,24 +19,24 @@
                 <thead class="w-100">
                     <tr class="row mx-0">
                         <th class="col-1">ID</th>
-                        <th class="col-1">电话</th>
+                        <th class="col-2">电话</th>
                         <th class="col-3">地址</th>
                         <th class="col-4">菜品</th>
-                        <th class="col-3">备注</th>
+                        <th class="col-2">备注</th>
                     </tr>
                 </thead>
                 <tbody class="w-100">
                     {% for order in orders %}
                     <tr class="row mx-0">
                         <td class="col-1">{{ order.idDisplay }}</td>
-                        <td class="col-1">{{ order.Phone }}</td>
+                        <td class="col-2">{{ order.Phone }}</td>
                         <td class="col-3">{{ order.Address }}</td>
                         <td class="col-4">
                             {% for meal in order.Meals %}
                                 <span> {{ meal }}</span><br>
                             {% endfor %}
                         </td>
-                        <td class="col-3">{{ order.Note }}</td>
+                        <td class="col-2">{{ order.Note }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -50,24 +50,24 @@
                     <thead class="w-100">
                     <tr class="row mx-0">
                         <th class="col-1">ID</th>
-                        <th class="col-1">电话</th>
+                        <th class="col-2">电话</th>
                         <th class="col-3">地址</th>
                         <th class="col-4">菜品</th>
-                        <th class="col-3">备注</th>
+                        <th class="col-2">备注</th>
                     </tr>
                     </thead>
                     <tbody class="w-100">
                     {% for order in orders %}
                     <tr class="row mx-0">
                         <td class="col-1">{{ order.idDisplay }}</td>
-                        <td class="col-1">{{ order.Phone }}</td>
+                        <td class="col-2">{{ order.Phone }}</td>
                         <td class="col-3">{{ order.Address }}</td>
                         <td class="col-4">
                             {% for meal in order.Meals %}
                             <span> {{ meal }}</span><br>
                             {% endfor %}
                         </td>
-                        <td class="col-3">{{ order.Note }}</td>
+                        <td class="col-2">{{ order.Note }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>
@@ -81,24 +81,24 @@
                     <thead class="w-100">
                     <tr class="row mx-0">
                         <th class="col-1">ID</th>
-                        <th class="col-1">电话</th>
+                        <th class="col-2">电话</th>
                         <th class="col-3">地址</th>
                         <th class="col-4">菜品</th>
-                        <th class="col-3">备注</th>
+                        <th class="col-2">备注</th>
                     </tr>
                     </thead>
                     <tbody class="w-100">
                     {% for order in orders %}
                     <tr class="row mx-0">
                         <td class="col-1">{{ order.idDisplay }}</td>
-                        <td class="col-1">{{ order.Phone }}</td>
+                        <td class="col-2">{{ order.Phone }}</td>
                         <td class="col-3">{{ order.Address }}</td>
                         <td class="col-4">
                             {% for meal in order.Meals %}
                             <span> {{ meal }}</span><br>
                             {% endfor %}
                         </td>
-                        <td class="col-3">{{ order.Note }}</td>
+                        <td class="col-2">{{ order.Note }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>
