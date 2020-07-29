@@ -8,12 +8,13 @@ from clustering.equal_groups import EqualGroupsKMeans
 import re
 from django.db.models import F, Max
 import pandas as pd
-
+from datetime import datetime
 from .models import Orders
 from accounts.models import Restaurant
 from .pdf import *
 from .GoogleMap import geocode, distance_matrix, position_dict
-
+import pytz
+from FoodDelivery_Server.settings import PYTZ_INFO
 def permutation_sort(addr_list,id_list):
     matrix = distance_matrix(addr_list)
     row = len(matrix)
@@ -70,8 +71,8 @@ class Order:
                                u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
                                "]+", flags=re.UNICODE)
     @classmethod
-    def CSV2DB(cls,df,restaurant_id,date):
-        Orders.objects.filter(idRestaurant_id=restaurant_id, OrderDate=date).delete()
+    def CSV2DB(cls,df,restaurant_id,timestamp):
+        Orders.objects.filter(idRestaurant_id=restaurant_id, OrderDate=timestamp).delete()
 
         length = len(df)
         for row_index in range(length):
@@ -95,7 +96,7 @@ class Order:
             Orders.objects.create(idRestaurant_id=restaurant_id,
                                   idDisplay=id_display,
                                   Price=price, ReceiverName=name,
-                                  Meals=meals_dic, OrderDate=date, DriverId=None, Address=address,
+                                  Meals=meals_dic, OrderDate=timestamp, DriverId=None, Address=address,
                                   isPickup=is_pickup,
                                   Phone=phone,
                                   Note=Order.emoji_pattern.sub(r'', note))
@@ -174,8 +175,7 @@ class Order:
 
 
     @classmethod
-    def csv2DB_check(cls, file_path, restaurant_id, date, is_lunch):
-        date += " 12:00" if is_lunch else " 18:00"
+    def csv2DB_check(cls, file_path, restaurant_id, timestamp):
         df = pd.read_csv(file_path)
         if "商品汇总" not in df.columns:
             df = Order.shopify_CSV2DB(df)
@@ -186,12 +186,11 @@ class Order:
                 df = Order.Weee_excel_preprocess(df)
             else:
                 df = Order.Weee_CSV_preprocess(df)
-        Order.CSV2DB(df,restaurant_id,date)
+        Order.CSV2DB(df,restaurant_id,timestamp)
     @classmethod
-    def pdf2DB(cls,file_path,restaurant_id,date,is_lunch):
-        date += " 12:00" if is_lunch else " 18:00"
+    def pdf2DB(cls,file_path,restaurant_id,timestamp):
 
-        Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=date).delete()
+        Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=timestamp).delete()
 
         with open(file_path, "rb") as pdf_file:
             text = read_pdf(pdf_file)
@@ -204,58 +203,101 @@ class Order:
                 Orders.objects.create(idRestaurant_id=restaurant_id,
                                       idDisplay=fetch_id(txt),
                                       Price=fetch_price(txt),ReceiverName=fetch_recipient_name(txt),
-                                      Meals=meals_dic,OrderDate=date,DriverId=None,Address=fetch_address(txt),
+                                      Meals=meals_dic,OrderDate=timestamp,DriverId=None,Address=fetch_address(txt),
                                       Phone=fetch_phone_number(txt),
                                       Note=fetch_note(txt))
     @classmethod
     def generate_deliver_list(cls,driver_id, date, isError=False):
-        if isError:
-            error_order_obj = Orders.objects.filter(DriverId_id__isnull=True,
-                                                    isPickup=False,
-                                                    idRestaurant__drivers__driverCode=driver_id,
-                                                    OrderDate=date + " 18:00").values("ReceiverName", "idDisplay",
-                                                                                      "Address", "Phone", "Note",
-                                                                                      "Meals").order_by("Sequence")
-            if not len(error_order_obj):
+        if '-' in date:
+            if isError:
+                today = datetime.strptime(date + " 18:00", "%Y-%m-%d %H:%M").replace(tzinfo=PYTZ_INFO)
+                timestamp = today.timestamp()
                 error_order_obj = Orders.objects.filter(DriverId_id__isnull=True,
                                                         isPickup=False,
                                                         idRestaurant__drivers__driverCode=driver_id,
-                                                        OrderDate=date + " 12:00").values("ReceiverName", "idDisplay",
+                                                        OrderDate=timestamp).values("ReceiverName", "idDisplay",
                                                                                           "Address", "Phone", "Note",
                                                                                           "Meals").order_by("Sequence")
+                if not len(error_order_obj):
+                    today = datetime.strptime(date + " 12:00", "%Y-%m-%d %H:%M").replace(tzinfo=PYTZ_INFO)
+                    timestamp = today.timestamp()
+                    error_order_obj = Orders.objects.filter(DriverId_id__isnull=True,
+                                                            isPickup=False,
+                                                            idRestaurant__drivers__driverCode=driver_id,
+                                                            OrderDate=timestamp).values("ReceiverName", "idDisplay",
+                                                                                              "Address", "Phone", "Note",
+                                                                                              "Meals").order_by("Sequence")
 
-            # print(error_order_obj)
-            error_lst = [{'name': order["ReceiverName"],
-                          'orderId': str(order['idDisplay']),
-                          'address': order['Address'],
-                          'phone': order['Phone'],
-                          'note': order['Note'],
-                          'dishes': [meal + " X " + str(num) for meal, num in order['Meals'].items()]} for order in
-                         error_order_obj]
-            return error_lst
-        order_obj = Orders.objects.filter(DriverId__driverCode=driver_id,
-                                           OrderDate=date+" 18:00").values("ReceiverName","idDisplay","Address","Phone","Note","Meals").order_by("Sequence")
-        if not len(order_obj):
+                # print(error_order_obj)
+                error_lst = [{'name': order["ReceiverName"],
+                              'orderId': str(order['idDisplay']),
+                              'address': order['Address'],
+                              'phone': order['Phone'],
+                              'note': order['Note'],
+                              'dishes': [meal + " X " + str(num) for meal, num in order['Meals'].items()]} for order in
+                             error_order_obj]
+                return error_lst
+            today = datetime.strptime(date + " 18:00", "%Y-%m-%d %H:%M").replace(tzinfo=PYTZ_INFO)
+            timestamp = today.timestamp()
+            print(timestamp)
             order_obj = Orders.objects.filter(DriverId__driverCode=driver_id,
-                                               OrderDate=date + " 12:00").values("ReceiverName","idDisplay","Address","Phone","Note","Meals").order_by("Sequence")
-        # print("phone:" ,order_obj[0]['Phone'])
+                                               OrderDate=timestamp).values("ReceiverName","idDisplay","Address","Phone","Note","Meals").order_by("Sequence")
+            if not len(order_obj):
+                today = datetime.strptime(date + " 12:00", "%Y-%m-%d %H:%M").replace(tzinfo=PYTZ_INFO)
+                timestamp = today.timestamp()
+                print(timestamp)
+                order_obj = Orders.objects.filter(DriverId__driverCode=driver_id,
+                                                   OrderDate=timestamp).values("ReceiverName","idDisplay","Address","Phone","Note","Meals").order_by("Sequence")
+        else:
+            if isError:
+                error_order_obj = Orders.objects.filter(DriverId_id__isnull=True,
+                                                        isPickup=False,
+                                                        idRestaurant__drivers__driverCode=driver_id,
+                                                        OrderDate=date).values("ReceiverName", "idDisplay",
+                                                                                          "Address", "Phone", "Note",
+                                                                                          "Meals").order_by("Sequence")
+                if not len(error_order_obj):
+                    error_order_obj = Orders.objects.filter(DriverId_id__isnull=True,
+                                                            isPickup=False,
+                                                            idRestaurant__drivers__driverCode=driver_id,
+                                                            OrderDate=date).values("ReceiverName",
+                                                                                              "idDisplay",
+                                                                                              "Address", "Phone",
+                                                                                              "Note",
+                                                                                              "Meals").order_by(
+                        "Sequence")
+
+                # print(error_order_obj)
+                error_lst = [{'name': order["ReceiverName"],
+                              'orderId': str(order['idDisplay']),
+                              'address': order['Address'],
+                              'phone': order['Phone'],
+                              'note': order['Note'],
+                              'dishes': [meal + " X " + str(num) for meal, num in order['Meals'].items()]} for order in
+                             error_order_obj]
+                return error_lst
+            order_obj = Orders.objects.filter(DriverId__driverCode=driver_id,
+                                              OrderDate=date).values("ReceiverName", "idDisplay", "Address",
+                                                                                "Phone", "Note", "Meals").order_by(
+                "Sequence")
+            if not len(order_obj):
+                order_obj = Orders.objects.filter(DriverId__driverCode=driver_id,
+                                                  OrderDate=date).values("ReceiverName", "idDisplay",
+                                                                                    "Address", "Phone", "Note",
+                                                                                    "Meals").order_by("Sequence")
         lst = [{'name':order["ReceiverName"],
                 'orderId':str(order['idDisplay']),
                 'address':order['Address'],
                 'phone':order['Phone'],
                 'note':order['Note'],
                 'dishes':[meal+" X "+str(num) for meal,num in order['Meals'].items()]} for order in order_obj]
-        # obj = Orders.objects.filter(idRestaurant=Restaurant.objects.get(idRestaurant=restaurant_id)
-        #                             ,DriverId=driver_id,OrderDate=date).order_by("Sequence")
-        # print(obj,type(obj))
-
         return lst
     @classmethod
-    def parser_meals(cls, restaurant_id, date):
-        # date += " 12:00" if is_lunch else " 18:00"
-        obj = Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=date).values("Meals","idDisplay")
+    def parser_meals(cls, restaurant_id, timestamp):
+        # timestamp += " 12:00" if is_lunch else " 18:00"
+        obj = Orders.objects.filter(idRestaurant_id=restaurant_id, OrderDate=timestamp).values("Meals", "idDisplay")
         if not len(obj):
-            obj = Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=date).values("Meals","idDisplay")
+            obj = Orders.objects.filter(idRestaurant_id=restaurant_id, OrderDate=timestamp).values("Meals", "idDisplay")
         dic = defaultdict(list)
         for meals in obj:
             idOrder = meals['idDisplay']
@@ -265,9 +307,9 @@ class Order:
         return dic
 
     @classmethod
-    def assign_order_driver(cls,restaurant_id,date,driver_list,is_lunch):
-        date += " 12:00" if is_lunch else " 18:00"
-        address = Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=date).values("Address","idDisplay","isPickup")
+    def assign_order_driver(cls,restaurant_id,timestamp,driver_list):
+        # timestamp += " 12:00" if is_lunch else " 18:00"
+        address = Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=timestamp).values("Address","idDisplay","isPickup")
         address_list = []
         pickup_list = []
         for addr in address:
@@ -281,23 +323,22 @@ class Order:
         cluster_model.fit(position)
         for index,addr in enumerate(good_addr):
             Orders.objects.filter(idRestaurant_id=restaurant_id,
-                                  OrderDate=date,
+                                  OrderDate=timestamp,
                                   Address=addr.replace("+"," ")).update(DriverId_id = driver_list[cluster_model.labels_[index]])
         for index,addr in enumerate(err):
             Orders.objects.filter(idRestaurant_id=restaurant_id,
-                                  OrderDate=date,
+                                  OrderDate=timestamp,
                                   Address=addr.replace("+"," ")).update(DriverId_id=None)
     @classmethod
-    def generate_sequence(cls,restaurant_id,date,is_lunch):
-        date += " 12:00" if is_lunch else " 18:00"
-        driver_list_query = Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=date).values("DriverId_id").distinct()
+    def generate_sequence(cls, restaurant_id, timestamp):
+        driver_list_query = Orders.objects.filter(idRestaurant_id=restaurant_id, OrderDate=timestamp).values("DriverId_id").distinct()
         driver_list = [value['DriverId_id'] for value in driver_list_query]
         for driver in driver_list:
 
             if driver==None:
                 continue
             print("generate seq",driver)
-            order_list = Orders.objects.filter(idRestaurant_id=restaurant_id,OrderDate=date,DriverId_id=driver).values("Address","idDisplay")
+            order_list = Orders.objects.filter(idRestaurant_id=restaurant_id, OrderDate=timestamp, DriverId_id=driver).values("Address", "idDisplay")
             addr_list = []
             id_list = []
             for order in order_list:
@@ -306,6 +347,6 @@ class Order:
             deliver_sequence = insertion_permutation_sort(addr_list,id_list)
             for index, order_id in enumerate(deliver_sequence):
                 Orders.objects.filter(idRestaurant_id=restaurant_id,
-                                      OrderDate=date,
+                                      OrderDate=timestamp,
                                       DriverId_id=driver,
                                       idDisplay=id_list[order_id]).update(Sequence=index+1)

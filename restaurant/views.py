@@ -14,10 +14,10 @@ from django.db.models import Sum
 from django_filters.views import FilterView
 from django_tables2.views import SingleTableMixin
 
-from datetime import date
+from datetime import date, datetime
 import threading
 import decimal
-
+from FoodDelivery_Server.settings import PYTZ_INFO
 from collections import defaultdict
 # Create your views here.
 
@@ -35,7 +35,7 @@ def dashboard(request):
             uploaded_file_loc = "{0}/{1}".format(fs.location, filename)
             # print('URL : ', uploaded_file_loc)
 
-            # today = date.today()
+            # today = timestamp.today()
             is_lunch = True if uploadSel_form.cleaned_data['Period']=='opt1' else False
             drivers = uploadSel_form.cleaned_data['drivers']
             driver_list = [ele.idDriver for ele in drivers]
@@ -55,18 +55,21 @@ def dashboard(request):
     return render(request, 'upload.html',{'restaurant':restaurant,'uploadSel_form':uploadSel_form, 'website':"dashboard"})
 
 def processOrder(uploaded_file_loc, restaurant, driver_list, is_lunch):
-    today = date.today()
+    today = str(date.today())
+    today += " 12:00" if is_lunch else " 18:00"
+    today = datetime.strptime(today, "%Y-%m-%d %H:%M").replace(tzinfo=PYTZ_INFO)
+    timestamp = today.timestamp()
     print("Start processes")
     today = str(today)
     if uploaded_file_loc[-3:] == 'pdf':
-        Order.pdf2DB(uploaded_file_loc,restaurant.idRestaurant,today, is_lunch)
+        Order.pdf2DB(uploaded_file_loc,restaurant.idRestaurant,timestamp)
         print('PDF2DB DONE')
     else:
-        Order.csv2DB_check(uploaded_file_loc, restaurant.idRestaurant, today, is_lunch)
+        Order.csv2DB_check(uploaded_file_loc, restaurant.idRestaurant,timestamp)
         print('CSV2DB DONE')
-    Order.assign_order_driver(restaurant.idRestaurant,today,driver_list, is_lunch)
+    Order.assign_order_driver(restaurant.idRestaurant,timestamp,driver_list)
     print('assign_order_driver DONE!')
-    Order.generate_sequence(restaurant,today,is_lunch)
+    Order.generate_sequence(restaurant,timestamp)
     print('generate_sequence Done')
 
 def uploadDone(request):
@@ -77,8 +80,8 @@ def order_for_kitchen(request):
     if request.user.is_superuser:
         return redirect('/admin/')
     restaurant = Restaurant.objects.get(user_id=request.user.id)
-    datetime = Orders.objects.filter(idRestaurant_id=restaurant).all().aggregate(Max("OrderDate"))
-    dic = Order.parser_meals(restaurant.idRestaurant,datetime['OrderDate__max'])
+    timestamp = Orders.objects.filter(idRestaurant_id=restaurant).all().aggregate(Max("OrderDate"))
+    dic = Order.parser_meals(restaurant.idRestaurant,timestamp['OrderDate__max'])
     dic = {key:(value,len(value)) for key,value in dic.items()}
     return render(request,'order_for_kitchen.html',{'restaurant': restaurant, 'orders':dic.items(), 'website':"order_for_kitchen"})
 
@@ -86,8 +89,25 @@ def get_order_sequence(request):
     driver_id = request.GET.get('driver_id')
     date = request.GET.get('date')
     isError = request.GET.get('isError')
+
     lst = Order.generate_deliver_list(driver_id,date,True if isError == '1' else False)
     return JsonResponse(lst,safe=False)
+
+
+def get_order_sequence2(request):
+    driver_id = request.GET.get('driver_id')
+    timestamp = request.GET.get('timestamp')
+    isError = request.GET.get('isError')
+    error_code = "0"
+    lst = {}
+    json = {}
+    if not Drivers.objects.filter(driverCode=driver_id):
+        error_code = "1"
+    else:
+        lst = Order.generate_deliver_list(driver_id,timestamp,True if isError == '1' else False)
+    json['error_code'] = error_code
+    json['orders'] = lst
+    return JsonResponse(json,safe=False)
 
 def driverManager(request):
     if request.method == 'POST':

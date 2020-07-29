@@ -2,7 +2,7 @@ from django.db import models
 
 from accounts.models import Restaurant
 from django_mysql.models import JSONField
-
+from unixtimestampfield.fields import UnixTimeStampField
 # Create your models here.
 class Drivers(models.Model):
 
@@ -23,7 +23,7 @@ class Orders(models.Model):
     Price = models.DecimalField(max_digits=9,decimal_places=4)
     ReceiverName = models.CharField(max_length=64)
     Meals = JSONField()
-    OrderDate = models.DateTimeField()
+    OrderDate = UnixTimeStampField(default=0.0)
     DriverId = models.ForeignKey(Drivers, on_delete=models.SET_NULL, null=True, to_field='idDriver')
     Address = models.CharField(max_length=1024)
     isPickup = models.BooleanField(default=False)
