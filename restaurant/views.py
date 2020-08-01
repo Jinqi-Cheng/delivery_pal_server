@@ -57,8 +57,10 @@ def dashboard(request):
 def processOrder(uploaded_file_loc, restaurant, driver_list, is_lunch):
     today = str(date.today())
     today += " 12:00" if is_lunch else " 18:00"
-    today = datetime.strptime(today, "%Y-%m-%d %H:%M").replace(tzinfo=PYTZ_INFO)
+    print(today)
+    today = datetime.strptime(today, "%Y-%m-%d %H:%M").astimezone(PYTZ_INFO)
     timestamp = today.timestamp()
+    print("timestamp"+str(timestamp))
     print("Start processes")
     today = str(today)
     if uploaded_file_loc[-3:] == 'pdf':

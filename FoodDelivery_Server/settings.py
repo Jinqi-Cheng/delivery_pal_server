@@ -140,7 +140,7 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'America/Los_Angeles'
-PYTZ_INFO = pytz.timezone("UTC")
+PYTZ_INFO = pytz.timezone("US/Pacific")
 USE_I18N = True
 
 USE_L10N = True

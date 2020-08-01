@@ -207,10 +207,21 @@ class Order:
                                       Phone=fetch_phone_number(txt),
                                       Note=fetch_note(txt))
     @classmethod
+    def generate_orders_dict(cls,order_obj):
+        lst = [{'name': order["ReceiverName"],
+                'orderId': str(order['idDisplay']),
+                'address': order['Address'],
+                'phone': order['Phone'],
+                'note': order['Note'],
+                # 'dishes': [meal + " X " + str(num) for meal, num in order['Meals'].items()]} for order in order_obj]
+                'dishes': [{"dish":meal,"number":str(num)} for meal, num in order['Meals'].items()]} for order in order_obj]
+        return lst
+
+    @classmethod
     def generate_deliver_list(cls,driver_id, date, isError=False):
         if '-' in date:
             if isError:
-                today = datetime.strptime(date + " 18:00", "%Y-%m-%d %H:%M").replace(tzinfo=PYTZ_INFO)
+                today = datetime.strptime(date + " 18:00", "%Y-%m-%d %H:%M").astimezone(PYTZ_INFO)
                 timestamp = today.timestamp()
                 error_order_obj = Orders.objects.filter(DriverId_id__isnull=True,
                                                         isPickup=False,
@@ -219,7 +230,7 @@ class Order:
                                                                                           "Address", "Phone", "Note",
                                                                                           "Meals").order_by("Sequence")
                 if not len(error_order_obj):
-                    today = datetime.strptime(date + " 12:00", "%Y-%m-%d %H:%M").replace(tzinfo=PYTZ_INFO)
+                    today = datetime.strptime(date + " 12:00", "%Y-%m-%d %H:%M").astimezone(PYTZ_INFO)
                     timestamp = today.timestamp()
                     error_order_obj = Orders.objects.filter(DriverId_id__isnull=True,
                                                             isPickup=False,
@@ -237,17 +248,24 @@ class Order:
                               'dishes': [meal + " X " + str(num) for meal, num in order['Meals'].items()]} for order in
                              error_order_obj]
                 return error_lst
-            today = datetime.strptime(date + " 18:00", "%Y-%m-%d %H:%M").replace(tzinfo=PYTZ_INFO)
+            today = datetime.strptime(date + " 18:00", "%Y-%m-%d %H:%M").astimezone(PYTZ_INFO)
             timestamp = today.timestamp()
             print(timestamp)
             order_obj = Orders.objects.filter(DriverId__driverCode=driver_id,
                                                OrderDate=timestamp).values("ReceiverName","idDisplay","Address","Phone","Note","Meals").order_by("Sequence")
             if not len(order_obj):
-                today = datetime.strptime(date + " 12:00", "%Y-%m-%d %H:%M").replace(tzinfo=PYTZ_INFO)
+                today = datetime.strptime(date + " 12:00", "%Y-%m-%d %H:%M").astimezone(PYTZ_INFO)
                 timestamp = today.timestamp()
                 print(timestamp)
                 order_obj = Orders.objects.filter(DriverId__driverCode=driver_id,
                                                    OrderDate=timestamp).values("ReceiverName","idDisplay","Address","Phone","Note","Meals").order_by("Sequence")
+            lst = [{'name': order["ReceiverName"],
+                    'orderId': str(order['idDisplay']),
+                    'address': order['Address'],
+                    'phone': order['Phone'],
+                    'note': order['Note'],
+                    'dishes': [meal + " X " + str(num) for meal, num in order['Meals'].items()]} for order in order_obj]
+            return lst
         else:
             if isError:
                 error_order_obj = Orders.objects.filter(DriverId_id__isnull=True,
@@ -256,42 +274,17 @@ class Order:
                                                         OrderDate=date).values("ReceiverName", "idDisplay",
                                                                                           "Address", "Phone", "Note",
                                                                                           "Meals").order_by("Sequence")
-                if not len(error_order_obj):
-                    error_order_obj = Orders.objects.filter(DriverId_id__isnull=True,
-                                                            isPickup=False,
-                                                            idRestaurant__drivers__driverCode=driver_id,
-                                                            OrderDate=date).values("ReceiverName",
-                                                                                              "idDisplay",
-                                                                                              "Address", "Phone",
-                                                                                              "Note",
-                                                                                              "Meals").order_by(
-                        "Sequence")
+
 
                 # print(error_order_obj)
-                error_lst = [{'name': order["ReceiverName"],
-                              'orderId': str(order['idDisplay']),
-                              'address': order['Address'],
-                              'phone': order['Phone'],
-                              'note': order['Note'],
-                              'dishes': [meal + " X " + str(num) for meal, num in order['Meals'].items()]} for order in
-                             error_order_obj]
+                error_lst = Order.generate_orders_dict(error_order_obj)
                 return error_lst
             order_obj = Orders.objects.filter(DriverId__driverCode=driver_id,
                                               OrderDate=date).values("ReceiverName", "idDisplay", "Address",
                                                                                 "Phone", "Note", "Meals").order_by(
                 "Sequence")
-            if not len(order_obj):
-                order_obj = Orders.objects.filter(DriverId__driverCode=driver_id,
-                                                  OrderDate=date).values("ReceiverName", "idDisplay",
-                                                                                    "Address", "Phone", "Note",
-                                                                                    "Meals").order_by("Sequence")
-        lst = [{'name':order["ReceiverName"],
-                'orderId':str(order['idDisplay']),
-                'address':order['Address'],
-                'phone':order['Phone'],
-                'note':order['Note'],
-                'dishes':[meal+" X "+str(num) for meal,num in order['Meals'].items()]} for order in order_obj]
-        return lst
+            lst = Order.generate_orders_dict(order_obj)
+            return lst
     @classmethod
     def parser_meals(cls, restaurant_id, timestamp):
         # timestamp += " 12:00" if is_lunch else " 18:00"
