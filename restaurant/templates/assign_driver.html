@@ -17,45 +17,34 @@
       <div class="row">
         <div class="col-md-6 offset-md-3">
           <div class="tile bg-gray">
-              <h3 class="tile-title">第一步: 选择您的CSV文件</h3>
-              {{ uploadSel_form.file }}
-              <label for="id_file" class="btn btn-white">选择文件</label>
-              <span class="file_name"></span>
+              <h3 class="tile-title">订单数量</h3>
+              {% for order_zip in order_zips %}
+                  {% if order_zip.ZipCode == None %}
+                    <div>错误及自提订单:{{ order_zip.total }}单</div>
+                  {% else %}
+                  <div>{{ order_zip.ZipCode }}:{{ order_zip.total }}单</div>
+                  {% endif %}
+              {% endfor %}
           </div>
         </div>
       </div>
     <div class="row">
         <div class="col-md-6 offset-md-3">
           <div class="tile bg-gray">
-              <h3 class="tile-title">第二步: 选择您的送餐司机</h3>
-              {{ uploadSel_form.drivers }}
-          </div>
-        </div>
-        </div>
-    <div class="row">
-        <div class="col-md-6 offset-md-3">
-          <div class="tile bg-gray">
-              <div class="form-group">
-              <h3 class="tile-title">第三步: 选择您的送餐时间段</h3>
-              {{ uploadSel_form.Period }}
-              </div>
+              <h3 class="tile-title" style="margin-bottom: 5px">请输入每个司机负责的Zip Code送餐区域</h3>
+          <h6>请使用空格或逗号分隔多个Zip Code</h6>
+          <input type="text" name="timestamp" class="form-control" id="timestamp" hidden=true placeholder="{{ timestamp }}" value="{{ timestamp }}">
+              {% for driver in drivers %}
+                  {{ driver.driverName }} | {{ driver.driverCode }}
+                  <input type="text" name="{{ driver.driverCode }}" class="form-control" id="{{ driver.driverCode }}">
+              {% endfor %}
           </div>
         </div>
     </div>
     <div class="row">
         <div class="col-md-6 offset-md-3">
           <div class="tile bg-gray">
-              <div class="form-group">
-              <h3 class="tile-title">第四步: 选择您的排序方式</h3>
-              {{ uploadSel_form.order_options }}
-              </div>
-          </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-6 offset-md-3">
-          <div class="tile bg-gray">
-              <h3 class="tile-title">第五步: 上传</h3>
+              <h3 class="tile-title">第三步: 确认</h3>
               {% buttons %}
             <button type="submit" class="btn btn-primary">
               确认上传

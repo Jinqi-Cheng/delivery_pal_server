@@ -10,6 +10,6 @@ class Restaurant(models.Model):
     idRestaurant = models.AutoField(primary_key = True)
     name = models.CharField(max_length=64)
     driverNumber = models.PositiveIntegerField(default=0)
-
+    address = models.CharField(max_length=128, null=True, blank=True,default="")
     class Meta:
         db_table = 'Restaurant'

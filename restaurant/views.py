@@ -2,13 +2,13 @@ from django.core.files.storage import FileSystemStorage
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required
-from django.db.models import F, Max
+from django.db.models import F, Max, Count
 
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from .models import Orders, Drivers
 from accounts.models import Restaurant
 from .Order import Order
-from .forms import DriverForm, uploadForm
+from .forms import DriverForm, uploadForm, ManageAddress
 from .tables import OrderTable,OrderFilter
 from django.db.models import Sum
 from django_filters.views import FilterView
@@ -19,6 +19,7 @@ import threading
 import decimal
 from FoodDelivery_Server.settings import PYTZ_INFO
 from collections import defaultdict
+import re
 # Create your views here.
 
 @login_required
@@ -43,9 +44,22 @@ def dashboard(request):
             # print(driver_list)
 
             today = date.today()
-            precess_data = threading.Thread(target=processOrder, args=[uploaded_file_loc,restaurant,driver_list,is_lunch])
-            precess_data.start()
-            return redirect('uploadDone')
+            if uploadSel_form.cleaned_data['order_options']=="opt1":
+                precess_data = threading.Thread(target=processOrder, args=[uploaded_file_loc,restaurant,driver_list,is_lunch])
+                precess_data.start()
+                return redirect('uploadDone')
+            else:
+                processOrderByZip(uploaded_file_loc,restaurant,driver_list,is_lunch)
+                driver_str = "+".join([ele.driverCode for ele in drivers])
+                today = str(date.today())
+                today += " 12:00" if is_lunch else " 18:00"
+                today = datetime.strptime(today, "%Y-%m-%d %H:%M").astimezone(PYTZ_INFO)
+                timestamp = today.timestamp()
+                response = redirect('assign_zip')
+
+                response['Location'] += '?drivers='+driver_str+"&timestamp="+str(timestamp)
+                return response
+                # return redirect('assign_zip',ab="1")
         else:
             print('Fail')
     else:
@@ -53,27 +67,70 @@ def dashboard(request):
     restaurant = Restaurant.objects.get(user_id = request.user.id)
     # return render(request, 'home_upload.html',{'restaurant':restaurant,'uploadSel_form':uploadSel_form})
     return render(request, 'upload.html',{'restaurant':restaurant,'uploadSel_form':uploadSel_form, 'website':"dashboard"})
+@login_required
+def assign_zip(request):
+    if request.method == 'POST':
+        print(request.POST)
+        dic = request.POST.copy()
+        dic_zip_to_driver = dict()
+        timestamp = dic['timestamp']
+        for key,value in dic.items():
+            if(key=='csrfmiddlewaretoken' or key=='timestamp'):
+                continue
+            print(key,value)
+            if(value==""):
+                continue
+            zips = re.findall(re.compile(r"\d{5}", re.S), value)
+            print(zips)
+            # zips = value.split(",")
+            for zip in zips:
+                dic_zip_to_driver[zip] = key
+        restaurant = Restaurant.objects.get(user_id=request.user.id)
+        for key,value in dic_zip_to_driver.items():
+            driver = Drivers.objects.get(driverCode=value)
+            Orders.objects.filter(idRestaurant_id=restaurant.idRestaurant,OrderDate=timestamp,ZipCode=key)\
+                .update(DriverId_id=driver)
+        Order.generate_sequence(restaurant,timestamp)
+        return redirect('uploadDone')
+    else:
+        driver_list = request.GET.get('drivers')
+        print(driver_list)
+        driver_list = driver_list.split(" ")
+        drivers = []
+        for driver in driver_list:
+            driver_obj = Drivers.objects.get(driverCode=driver)
+            drivers.append(driver_obj)
+        timestamp = request.GET.get('timestamp')
+        restaurant = Restaurant.objects.get(user_id=request.user.id)
+        orders = Orders.objects.filter(idRestaurant_id=restaurant,OrderDate=timestamp)\
+            .values('ZipCode').annotate(total=Count("idDisplay")).order_by('ZipCode')
+        print(orders)
 
+        return render(request,'assign_driver.html',{'order_zips':orders,'drivers':drivers,'timestamp':timestamp})
 def processOrder(uploaded_file_loc, restaurant, driver_list, is_lunch):
     today = str(date.today())
     today += " 12:00" if is_lunch else " 18:00"
-    print(today)
     today = datetime.strptime(today, "%Y-%m-%d %H:%M").astimezone(PYTZ_INFO)
     timestamp = today.timestamp()
-    print("timestamp"+str(timestamp))
-    print("Start processes")
     today = str(today)
     if uploaded_file_loc[-3:] == 'pdf':
         Order.pdf2DB(uploaded_file_loc,restaurant.idRestaurant,timestamp)
-        print('PDF2DB DONE')
     else:
         Order.csv2DB_check(uploaded_file_loc, restaurant.idRestaurant,timestamp)
-        print('CSV2DB DONE')
     Order.assign_order_driver(restaurant.idRestaurant,timestamp,driver_list)
-    print('assign_order_driver DONE!')
-    Order.generate_sequence(restaurant,timestamp)
-    print('generate_sequence Done')
-
+    # Order.generate_sequence(restaurant,timestamp)
+    Order.generate_sequence_distance(restaurant,timestamp)
+def processOrderByZip(uploaded_file_loc, restaurant, driver_list, is_lunch):
+    today = str(date.today())
+    today += " 12:00" if is_lunch else " 18:00"
+    today = datetime.strptime(today, "%Y-%m-%d %H:%M").astimezone(PYTZ_INFO)
+    timestamp = today.timestamp()
+    today = str(today)
+    if uploaded_file_loc[-3:] == 'pdf':
+        Order.pdf2DB(uploaded_file_loc, restaurant.idRestaurant, timestamp)
+    else:
+        Order.csv2DB_check(uploaded_file_loc, restaurant.idRestaurant, timestamp)
+    Order.address_zip(restaurant.idRestaurant,timestamp)
 def uploadDone(request):
     return render(request, 'upload_done.html')
 
@@ -342,3 +399,22 @@ def printable_driver_sequence(request):
     return render(request, "printable_driver_sequence.html",
                   {'restaurant': restaurant, 'drivers': driver_dic.items(), 'error': error_dic.items(),
                    'pickup': pickup_dic.items(), 'driver_seq_clipboard':driver_seq_clipboard,'website':"printable_driver_sequence"})
+@login_required
+def manage_address(request):
+    if request.method == 'POST':
+        restaurant = Restaurant.objects.get(user_id=request.user.id)
+        form = ManageAddress(request.POST)
+        if form.is_valid():
+            restaurant.address = form.cleaned_data['address']
+            restaurant.save()
+        return render(request, "manage_address.html", {'restaurant': restaurant,
+                                                       'form': form, 'website': "manage_address"})
+    else:
+        form = ManageAddress()
+        restaurant = Restaurant.objects.get(user_id=request.user.id)
+        return render(request, "manage_address.html",{'restaurant':restaurant,
+                                                      'form':form,'website':"manage_address"})
+@login_required
+def validate_address(request):
+    if request.method == 'GET':
+        pass

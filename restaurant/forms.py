@@ -32,7 +32,8 @@ class uploadForm(forms.Form):
     #                            choices=(('opt1','Lunch'),('opt2','Dinner'),),label='送餐时间')
     Period = forms.ChoiceField(required=True, widget=forms.Select(attrs={'class': 'form-control col-6'}),
                                choices=(('opt1', '午餐'), ('opt2', '晚餐'),), label='送餐时间')
-
+    order_options = forms.ChoiceField(required=True,widget=forms.Select(attrs={'class': 'form-control col-6'}),
+                               choices=(('opt1', '自动排序'), ('opt2', '按Zipcode排序'),), label='排序方式')
     def __init__(self, restaurant_id,*args, **kwargs):
         super(uploadForm, self).__init__(*args, **kwargs)
         restaurant = Restaurant.objects.get(user_id = restaurant_id)
@@ -40,3 +41,6 @@ class uploadForm(forms.Form):
 
     def label_from_instance(self, obj):
         return "%s | %s" % (obj.name, obj.field1)
+    
+class ManageAddress(forms.Form):
+    address = forms.CharField(widget=forms.TextInput(attrs={'id':'address_form'}))

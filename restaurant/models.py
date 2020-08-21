@@ -26,6 +26,7 @@ class Orders(models.Model):
     OrderDate = UnixTimeStampField(default=0.0)
     DriverId = models.ForeignKey(Drivers, on_delete=models.SET_NULL, null=True, to_field='idDriver')
     Address = models.CharField(max_length=1024)
+    ZipCode = models.CharField(max_length=10,default=None,blank=True, null=True)
     isPickup = models.BooleanField(default=False)
     Sequence = models.PositiveIntegerField(default=0)
     Phone = models.CharField(max_length=20,blank=True)

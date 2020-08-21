@@ -110,6 +110,7 @@
           </ul>
         </li>
         <li><a class="app-menu__item {% if website == "driverManager" %} active {% endif %}" href="{% url 'driverManager' %}"><i class="app-menu__icon fa fa-car"></i><span class="app-menu__label">司机管理</span></a></li>
+        <li><a class="app-menu__item {% if website == "manage_address" %} active {% endif %}" href="{% url 'manage_address' %}"><i class="app-menu__icon fa fa-car"></i><span class="app-menu__label">地址管理</span></a></li>
         <li><a class="app-menu__item {% if website == "order_for_kitchen" %} active {% endif %}"  href="{% url 'order_for_kitchen' %}"><i class="app-menu__icon fa fa-list"></i><span class="app-menu__label">订单分拣</span></a></li>
         <li><a class="app-menu__item {% if website == "orderHistory" %} active {% endif %}"  href="{% url 'order_history' %}"><i class="app-menu__icon fa fa-history"></i><span class="app-menu__label">历史订单</span></a></li>
         <li><a class="app-menu__item {% if website == "contact_us" %} active {% endif %}"  href="{% url 'contact_us' %}"><i class="app-menu__icon fa fa-envelope"></i><span class="app-menu__label">联系我们</span></a></li>

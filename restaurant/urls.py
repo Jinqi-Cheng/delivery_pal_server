@@ -15,5 +15,7 @@ urlpatterns = [
     path('contact_us/',views.contact_us,name='contact_us'),
     path('printable_routes',views.printable_routes,name='printable_routes'),
     path('driver_item_list/',views.driver_item_list,name='driver_item_list'),
-    path('printable_driver_sequence/',views.printable_driver_sequence,name='printable_driver_sequence')
+    path('printable_driver_sequence/',views.printable_driver_sequence,name='printable_driver_sequence'),
+    path('manage_address/',views.manage_address,name='manage_address'),
+    path('assign_zip/',views.assign_zip,name='assign_zip'),
 ]

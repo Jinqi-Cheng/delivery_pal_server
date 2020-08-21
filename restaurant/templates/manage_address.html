@@ -1,0 +1,40 @@
+{% extends "restaurant_base.html" %}
+{% load bootstrap3 %}
+{% block title %}Driver Manager{% endblock %}
+{% block content %}
+<div class="app-title">
+    <div>
+        <h1><i class="fa fa-car"></i>餐厅管理</h1>
+        <p>您可以在此预览已有司机的送餐员编号, 以及添加新司机</p>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-6 offset-3">
+        <h3 style="margin: 2px">设置餐厅地址</h3>
+        <hr style="margin: 2px"/>
+        <br>
+        <form action="." method="post" class="form">
+            {% csrf_token %}
+        <div class="tile bg-gray">
+            <div class="row">
+                <div class="col-md-6">当前地址 {{ restaurant.address }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+            {{ form.address}}</div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary">
+                确认
+            </button>
+        </div>
+        </div>
+
+        </div>
+
+        </form>
+        <br>
+
+    </div>
+</div>
+
+{% endblock %}
